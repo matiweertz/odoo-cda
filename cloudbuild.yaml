@@ -1,0 +1,58 @@
+steps:
+  # 1. Intentar descargar la imagen previa para usar sus capas como caché
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker pull ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app:latest || true
+
+  # 2. Construir la imagen Docker usando la caché de la imagen previa
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--cache-from'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app:latest'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app:$COMMIT_SHA'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app:latest'
+      - '.'
+
+  # 3. Subir las imágenes etiquetadas a Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app'
+      - '--all-tags'
+
+  # 4. Desplegar la imagen en la instancia VM teletag-srv vía SSH
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud compute ssh teletag-srv --zone=${_ZONE} --tunnel-through-iap --command="
+          sudo chmod 777 /var/lib/odoo &&
+          gcloud auth configure-docker ${_REGION}-docker.pkg.dev --quiet &&
+          docker pull ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app:$COMMIT_SHA &&
+          docker stop odoo-container || true &&
+          docker rm odoo-container || true &&
+          docker run -d \
+            --name odoo-container \
+            --restart always \
+            -p 8069:8069 \
+            -p 8071:8071 \
+            -p 8072:8072 \
+            -v /var/lib/odoo:/var/lib/odoo \
+            -v /home/odoo/odoo-addons:/home/bo/extra-addons \
+            ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app:$COMMIT_SHA
+        "
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _REGION: 'southamerica-west1'
+  _ZONE: 'southamerica-west1-b'
+  _REPO_NAME: 'cda-teletag'
