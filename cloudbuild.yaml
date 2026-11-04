@@ -19,7 +19,7 @@ steps:
       - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/cda-odoo:latest'
       - '.'
 
-  # 3. Subir las imágenes etiquetadas a Artifact Registry
+  # 3. Subir las imágenes etiquetadas a Artifact Registry (desde Cloud Build)
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
@@ -33,6 +33,7 @@ steps:
       - '-c'
       - |
         gcloud compute ssh odoo-srv --zone=${_ZONE} --tunnel-through-iap --command="
+          sudo mkdir -p /var/lib/odoo &&
           sudo chmod 777 /var/lib/odoo &&
           gcloud auth configure-docker ${_REGION}-docker.pkg.dev --quiet &&
           docker pull ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/cda-odoo:$COMMIT_SHA &&
