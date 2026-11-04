@@ -5,37 +5,37 @@ steps:
     args:
       - '-c'
       - |
-        docker pull ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app:latest || true
+        docker pull ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/cda-odoo:latest || true
 
   # 2. Construir la imagen Docker usando la caché de la imagen previa
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
       - '--cache-from'
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app:latest'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/cda-odoo:latest'
       - '-t'
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app:$COMMIT_SHA'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/cda-odoo:$COMMIT_SHA'
       - '-t'
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app:latest'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/cda-odoo:latest'
       - '.'
 
   # 3. Subir las imágenes etiquetadas a Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/cda-odoo'
       - '--all-tags'
 
-  # 4. Desplegar la imagen en la instancia VM teletag-srv vía SSH
+  # 4. Desplegar la imagen en la instancia VM odoo-srv vía SSH
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        gcloud compute ssh teletag-srv --zone=${_ZONE} --tunnel-through-iap --command="
+        gcloud compute ssh odoo-srv --zone=${_ZONE} --tunnel-through-iap --command="
           sudo chmod 777 /var/lib/odoo &&
           gcloud auth configure-docker ${_REGION}-docker.pkg.dev --quiet &&
-          docker pull ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app:$COMMIT_SHA &&
+          docker pull ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/cda-odoo:$COMMIT_SHA &&
           docker stop odoo-container || true &&
           docker rm odoo-container || true &&
           docker run -d \
@@ -44,9 +44,7 @@ steps:
             -p 8069:8069 \
             -p 8071:8071 \
             -p 8072:8072 \
-            -v /var/lib/odoo:/var/lib/odoo \
-            -v /home/odoo/odoo-addons:/home/bo/extra-addons \
-            ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/odoo-app:$COMMIT_SHA
+            ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/cda-odoo:$COMMIT_SHA
         "
 
 options:
@@ -55,4 +53,4 @@ options:
 substitutions:
   _REGION: 'southamerica-west1'
   _ZONE: 'southamerica-west1-b'
-  _REPO_NAME: 'cda-teletag'
+  _REPO_NAME: 'cda-odoo'
