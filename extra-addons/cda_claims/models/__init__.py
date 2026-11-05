@@ -7,5 +7,4 @@ from . import claim_subtype
 from . import claim_type
 from . import crane_type
 from . import entry_code
-from . import res_config_settings
 from . import stage

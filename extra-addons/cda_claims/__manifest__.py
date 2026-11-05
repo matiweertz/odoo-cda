@@ -1,17 +1,15 @@
 {
     "name": "CDA Reclamos",
-    "version": "19.0.1.5.0",
+    "version": "19.0.1.6.0",
     "summary": "Reclamos de Caminos del Aconcagua",
     "description": """
 Gestión de reclamos de Caminos del Aconcagua.
 
 Modelo propio cda.claim con clasificación en tipo, subtipo y detalle, medio de
-entrada con los 17 códigos, referencia externa idempotente y formulario de
-reclamo. Numeración MEDIO-TIPO-SUBTIPO-NUMERO.
+entrada con los 17 códigos y formulario de reclamo. Numeración
+MEDIO-TIPO-SUBTIPO-NUMERO.
 
-El controlador /api/claims usa un entorno elevado sobre el usuario de servicio
-configurado en cda_claims.service_user_id, porque el llamador ya fue autenticado
-por el Gateway FastAPI y la cabecera X-Api-Key vive en cda_claims.api_key.
+La API REST vive en el módulo cda_api, que autentica con API keys de res.users.
 """,
     "author": "Watson",
     "license": "AGPL-3",
@@ -33,7 +31,6 @@ por el Gateway FastAPI y la cabecera X-Api-Key vive en cda_claims.api_key.
         "views/crane_type_views.xml",
         "views/claim_merge_wizard_views.xml",
         "views/claim_menus.xml",
-        "views/cda_api_views.xml",
     ],
     "assets": {
         "web.assets_backend": [

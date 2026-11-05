@@ -4,6 +4,7 @@ from odoo import http
 from odoo.http import request
 
 from ..models.claim_api import ClaimApiError
+from .auth import api_user
 
 API = "/api/v1"
 CLIENT_HEADER = "X-Client"
@@ -25,11 +26,12 @@ class CdaApiClaims(http.Controller):
     @http.route(
         f"{API}/claims/search",
         type="http",
-        auth="bearer",
+        auth="public",
         methods=["GET"],
         csrf=False,
     )
     def claims_search(self, **params):
+        api_user()
         try:
             result = request.env["cda.claim.api"].search_claims(params)
         except ClaimApiError as exc:
@@ -39,11 +41,12 @@ class CdaApiClaims(http.Controller):
     @http.route(
         f"{API}/claims/<int:claim_id>",
         type="http",
-        auth="bearer",
+        auth="public",
         methods=["GET"],
         csrf=False,
     )
     def claims_get(self, claim_id, **params):
+        api_user()
         try:
             result = request.env["cda.claim.api"].get_claim(claim_id)
         except ClaimApiError as exc:
@@ -53,10 +56,11 @@ class CdaApiClaims(http.Controller):
     @http.route(
         f"{API}/claims",
         type="json2",
-        auth="bearer",
+        auth="public",
         methods=["POST"],
     )
     def claims_create(self, **payload):
+        api_user()
         try:
             result = request.env["cda.claim.api"].create_claim(payload, origin=_client())
         except ClaimApiError as exc:
@@ -66,10 +70,11 @@ class CdaApiClaims(http.Controller):
     @http.route(
         f"{API}/claims/<int:claim_id>",
         type="json2",
-        auth="bearer",
+        auth="public",
         methods=["PATCH"],
     )
     def claims_update(self, claim_id, **payload):
+        api_user()
         try:
             result = request.env["cda.claim.api"].update_claim(
                 claim_id, payload, origin=_client()
@@ -81,11 +86,12 @@ class CdaApiClaims(http.Controller):
     @http.route(
         f"{API}/claims/attachments/<int:attachment_id>",
         type="http",
-        auth="bearer",
+        auth="public",
         methods=["GET"],
         csrf=False,
     )
     def attachment(self, attachment_id, **params):
+        api_user()
         api = request.env["cda.claim.api"]
         try:
             attachment = request.env["cda.claim.attachment"].browse(attachment_id)
@@ -104,9 +110,10 @@ class CdaApiClaims(http.Controller):
     @http.route(
         f"{API}/claim-types",
         type="http",
-        auth="bearer",
+        auth="public",
         methods=["GET"],
         csrf=False,
     )
     def claim_types(self, **params):
+        api_user()
         return request.make_json_response(request.env["cda.claim.api"].claim_types())

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="cda_api_settings_view_form" model="ir.ui.view">
+        <field name="name">cda.api.settings.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="arch" type="xml">
+            <form string="API REST">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        Con <strong>Requerir API key</strong> desactivado, la API
+                        acepta llamadas sin <code>Authorization</code> y trabaja
+                        con el usuario de servicio. Activalo cuando salga a
+                        producción.
+                    </div>
+                    <group>
+                        <group string="Acceso" name="cda_api_access">
+                            <field name="cda_api_require_auth" />
+                            <field name="cda_api_service_user_id" />
+                        </group>
+                        <group string="Documentación" name="cda_api_docs">
+                            <field name="cda_api_docs_path" />
+                        </group>
+                    </group>
+                    <div class="text-center mt-3">
+                        <button
+                            name="action_cda_open_docs"
+                            type="object"
+                            string="Ver documentación de la API"
+                            class="btn-primary"
+                            icon="fa-external-link"
+                        />
+                    </div>
+                </sheet>
+                <footer>
+                    <button string="Guardar" special="save" class="btn-primary" />
+                    <button
+                        string="Cancelar"
+                        special="cancel"
+                        class="btn-secondary"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_cda_api_config" model="ir.actions.act_window">
+        <field name="name">API REST</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="cda_api_settings_view_form" />
+        <field name="target">current</field>
+        <field name="path">api-rest</field>
+    </record>
+
+    <record id="action_cda_api_docs" model="ir.actions.act_url">
+        <field name="name">Documentación</field>
+        <field name="url">/api/v1/docs</field>
+        <field name="target">new</field>
+    </record>
+    <record id="action_cda_api_swagger" model="ir.actions.act_url">
+        <field name="name">Swagger UI</field>
+        <field name="url">/api/v1/docs/swagger</field>
+        <field name="target">new</field>
+    </record>
+    <record id="action_cda_api_openapi" model="ir.actions.act_url">
+        <field name="name">OpenAPI JSON</field>
+        <field name="url">/api/v1/openapi.json</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="menu_cda_api_root"
+        name="API REST"
+        sequence="17"
+        web_icon="cda_api,static/description/icon.png"
+        action="action_cda_api_config"
+        groups="base.group_system"
+    />
+    <menuitem
+        id="menu_cda_api_docs"
+        name="Documentación"
+        parent="menu_cda_api_root"
+        action="action_cda_api_docs"
+        sequence="10"
+    />
+    <menuitem
+        id="menu_cda_api_swagger"
+        name="Swagger UI"
+        parent="menu_cda_api_root"
+        action="action_cda_api_swagger"
+        sequence="20"
+    />
+    <menuitem
+        id="menu_cda_api_openapi"
+        name="OpenAPI JSON"
+        parent="menu_cda_api_root"
+        action="action_cda_api_openapi"
+        sequence="30"
+    />
+</odoo>
