@@ -42,6 +42,7 @@ steps:
           docker run -d \
             --name odoo-container \
             --restart always \
+            -v /var/lib/odoo:/var/lib/odoo \
             -p 8069:8069 \
             -p 8071:8071 \
             -p 8072:8072 \
