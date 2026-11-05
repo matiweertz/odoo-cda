@@ -1,15 +1,15 @@
 {
     "name": "CDA Reclamos",
-    "version": "19.0.1.6.0",
+    "version": "19.0.1.6.1",
     "summary": "Reclamos de Caminos del Aconcagua",
     "description": """
-Gestión de reclamos de Caminos del Aconcagua.
+GestiÃ³n de reclamos de Caminos del Aconcagua.
 
-Modelo propio cda.claim con clasificación en tipo, subtipo y detalle, medio de
-entrada con los 17 códigos y formulario de reclamo. Numeración
+Modelo propio cda.claim con clasificaciÃ³n en tipo, subtipo y detalle, medio de
+entrada con los 17 cÃ³digos y formulario de reclamo. NumeraciÃ³n
 MEDIO-TIPO-SUBTIPO-NUMERO.
 
-La API REST vive en el módulo cda_api, que autentica con API keys de res.users.
+La API REST vive en el mÃ³dulo cda_api, que autentica con API keys de res.users.
 """,
     "author": "Watson",
     "license": "AGPL-3",
