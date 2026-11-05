@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="action_cda_claim" model="ir.actions.act_window">
+        <field name="name">Reclamos</field>
+        <field name="res_model">cda.claim</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">reclamos</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Crear el primer reclamo</p>
+        </field>
+    </record>
+    <record id="action_cda_claim_mine" model="ir.actions.act_window">
+        <field name="name">Mis reclamos</field>
+        <field name="res_model">cda.claim</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="path">mis-reclamos</field>
+    </record>
+    <record id="action_cda_claim_report" model="ir.actions.act_window">
+        <field name="name">Reclamos</field>
+        <field name="res_model">cda.claim</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="path">reportes-reclamos</field>
+    </record>
+    <record id="action_cda_entry_code" model="ir.actions.act_window">
+        <field name="name">Medios de entrada</field>
+        <field name="res_model">cda.claim.entry.code</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">medios-entrada</field>
+    </record>
+
+    <record id="action_cda_claim_merge" model="ir.actions.act_window">
+        <field name="name">Combinar reclamos</field>
+        <field name="res_model">cda.claim.merge.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_cda_claim" />
+        <field name="binding_view_types">list</field>
+    </record>
+
+    <menuitem
+        id="menu_cda_claims_root"
+        name="Reclamos"
+        sequence="16"
+        web_icon="cda_claims,static/description/icon.png"
+        groups="group_cda_claims_user"
+    />
+    <menuitem
+        id="menu_cda_claim"
+        name="Reclamos"
+        parent="menu_cda_claims_root"
+        action="action_cda_claim"
+        sequence="10"
+    />
+    <menuitem
+        id="menu_cda_claim_mine"
+        name="Mis reclamos"
+        parent="menu_cda_claims_root"
+        action="action_cda_claim_mine"
+        sequence="20"
+    />
+    <menuitem
+        id="menu_cda_claim_merge"
+        name="Combinar reclamos"
+        parent="menu_cda_claims_root"
+        action="action_cda_claim_merge"
+        sequence="25"
+    />
+    <menuitem
+        id="menu_cda_claim_report"
+        name="Reportes"
+        parent="menu_cda_claims_root"
+        sequence="30"
+        groups="group_cda_claims_manager"
+    />
+    <menuitem
+        id="menu_cda_claim_report_claims"
+        name="Reclamos"
+        parent="menu_cda_claim_report"
+        action="action_cda_claim_report"
+        sequence="10"
+    />
+    <menuitem
+        id="menu_cda_claims_config"
+        name="Configuración"
+        parent="menu_cda_claims_root"
+        sequence="40"
+        groups="base.group_system"
+    />
+    <record id="menu_cda_claims_config" model="ir.ui.menu">
+        <field
+            name="group_ids"
+            eval="[(6, 0, [ref('base.group_system')])]"
+        />
+    </record>
+    <menuitem
+        id="menu_cda_entry_code"
+        name="Medios de entrada"
+        parent="menu_cda_claims_config"
+        action="action_cda_entry_code"
+        sequence="10"
+    />
+    <menuitem
+        id="menu_cda_claim_type"
+        name="Tipos de reclamo"
+        parent="menu_cda_claims_config"
+        action="action_cda_claim_type"
+        sequence="20"
+    />
+    <menuitem
+        id="menu_cda_claim_subtype"
+        name="Subtipos de reclamo"
+        parent="menu_cda_claims_config"
+        action="action_cda_claim_subtype"
+        sequence="25"
+    />
+    <menuitem
+        id="menu_cda_claim_detail"
+        name="Detalles de reclamo"
+        parent="menu_cda_claims_config"
+        action="action_cda_claim_detail"
+        sequence="30"
+    />
+    <menuitem
+        id="menu_cda_crane_type"
+        name="Tipos de grúa"
+        parent="menu_cda_claims_config"
+        action="action_cda_crane_type"
+        sequence="35"
+    />
+</odoo>

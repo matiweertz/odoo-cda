@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="entry_code_view_list" model="ir.ui.view">
+        <field name="name">cda.claim.entry.code.list</field>
+        <field name="model">cda.claim.entry.code</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="category" />
+                <field name="is_automated" />
+            </list>
+        </field>
+    </record>
+    <record id="entry_code_view_form" model="ir.ui.view">
+        <field name="name">cda.claim.entry.code.form</field>
+        <field name="model">cda.claim.entry.code</field>
+        <field name="arch" type="xml">
+            <form string="Medio de entrada">
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archivado"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <field name="code" />
+                        <field name="name" />
+                        <field name="category" />
+                        <field name="is_automated" />
+                        <field name="active" invisible="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="entry_code_view_search" model="ir.ui.view">
+        <field name="name">cda.claim.entry.code.search</field>
+        <field name="model">cda.claim.entry.code</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code" />
+                <field name="name" />
+                <field name="category" />
+                <filter
+                    name="archived"
+                    string="Archivados"
+                    domain="[('active','=',False)]"
+                />
+                <group>
+                    <filter
+                        name="group_category"
+                        string="Categoría"
+                        context="{'group_by': 'category'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

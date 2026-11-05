@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="subtype_view_list" model="ir.ui.view">
+        <field name="name">cda.claim.subtype.list</field>
+        <field name="model">cda.claim.subtype</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="type_id" />
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="detail_count" string="Detalles" />
+            </list>
+        </field>
+    </record>
+    <record id="subtype_view_form" model="ir.ui.view">
+        <field name="name">cda.claim.subtype.form</field>
+        <field name="model">cda.claim.subtype</field>
+        <field name="arch" type="xml">
+            <form string="Subtipo de reclamo">
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archivado"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <field name="type_id" />
+                        <field name="code" />
+                        <field name="name" />
+                        <field name="active" invisible="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="subtype_view_search" model="ir.ui.view">
+        <field name="name">cda.claim.subtype.search</field>
+        <field name="model">cda.claim.subtype</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code" />
+                <field name="name" />
+                <field name="type_id" />
+                <filter
+                    name="archived"
+                    string="Archivados"
+                    domain="[('active','=',False)]"
+                />
+                <group>
+                    <filter
+                        name="group_type"
+                        string="Tipo"
+                        context="{'group_by': 'type_id'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_cda_claim_subtype" model="ir.actions.act_window">
+        <field name="name">Subtipos de reclamo</field>
+        <field name="res_model">cda.claim.subtype</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">subtipos-reclamo</field>
+    </record>
+
+    <record id="detail_view_list" model="ir.ui.view">
+        <field name="name">cda.claim.detail.list</field>
+        <field name="model">cda.claim.detail</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="type_id" />
+                <field name="subtype_id" />
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="extra" />
+            </list>
+        </field>
+    </record>
+    <record id="detail_view_form" model="ir.ui.view">
+        <field name="name">cda.claim.detail.form</field>
+        <field name="model">cda.claim.detail</field>
+        <field name="arch" type="xml">
+            <form string="Detalle de reclamo">
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archivado"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <field name="type_id" />
+                        <field name="subtype_id" />
+                        <field name="code" />
+                        <field name="name" />
+                        <field name="extra" />
+                        <field name="active" invisible="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="detail_view_search" model="ir.ui.view">
+        <field name="name">cda.claim.detail.search</field>
+        <field name="model">cda.claim.detail</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code" />
+                <field name="name" />
+                <field name="subtype_id" />
+                <field name="type_id" />
+                <filter
+                    name="archived"
+                    string="Archivados"
+                    domain="[('active','=',False)]"
+                />
+                <group>
+                    <filter
+                        name="group_type"
+                        string="Tipo"
+                        context="{'group_by': 'type_id'}"
+                    />
+                    <filter
+                        name="group_subtype"
+                        string="Subtipo"
+                        context="{'group_by': 'subtype_id'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_cda_claim_detail" model="ir.actions.act_window">
+        <field name="name">Detalles de reclamo</field>
+        <field name="res_model">cda.claim.detail</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">detalles-reclamo</field>
+    </record>
+</odoo>

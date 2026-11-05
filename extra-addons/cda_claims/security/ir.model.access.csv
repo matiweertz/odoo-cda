@@ -1,0 +1,19 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_cda_claim_user,cda.claim user,model_cda_claim,cda_claims.group_cda_claims_user,1,1,1,0
+access_cda_claim_manager,cda.claim manager,model_cda_claim,cda_claims.group_cda_claims_manager,1,1,1,1
+access_cda_claim_stage_user,cda.claim.stage user,model_cda_claim_stage,cda_claims.group_cda_claims_user,1,0,0,0
+access_cda_claim_stage_admin,cda.claim.stage admin,model_cda_claim_stage,base.group_system,1,1,1,1
+access_cda_entry_code_user,cda.claim.entry.code user,model_cda_claim_entry_code,cda_claims.group_cda_claims_user,1,0,0,0
+access_cda_entry_code_admin,cda.claim.entry.code admin,model_cda_claim_entry_code,base.group_system,1,1,1,1
+access_cda_claim_attachment_user,cda.claim.attachment user,model_cda_claim_attachment,cda_claims.group_cda_claims_user,1,1,1,1
+access_cda_claim_attachment_manager,cda.claim.attachment manager,model_cda_claim_attachment,cda_claims.group_cda_claims_manager,1,1,1,1
+access_cda_claim_merge_wizard_user,cda.claim.merge.wizard user,model_cda_claim_merge_wizard,cda_claims.group_cda_claims_user,1,1,1,1
+access_cda_claim_merge_wizard_manager,cda.claim.merge.wizard manager,model_cda_claim_merge_wizard,cda_claims.group_cda_claims_manager,1,1,1,1
+access_cda_crane_type_user,cda.claim.crane.type user,model_cda_claim_crane_type,cda_claims.group_cda_claims_user,1,0,0,0
+access_cda_crane_type_admin,cda.claim.crane.type admin,model_cda_claim_crane_type,base.group_system,1,1,1,1
+access_cda_claim_type_user,cda.claim.type user,model_cda_claim_type,cda_claims.group_cda_claims_user,1,0,0,0
+access_cda_claim_type_admin,cda.claim.type admin,model_cda_claim_type,base.group_system,1,1,1,1
+access_cda_claim_subtype_user,cda.claim.subtype user,model_cda_claim_subtype,cda_claims.group_cda_claims_user,1,0,0,0
+access_cda_claim_subtype_admin,cda.claim.subtype admin,model_cda_claim_subtype,base.group_system,1,1,1,1
+access_cda_claim_detail_user,cda.claim.detail user,model_cda_claim_detail,cda_claims.group_cda_claims_user,1,0,0,0
+access_cda_claim_detail_admin,cda.claim.detail admin,model_cda_claim_detail,base.group_system,1,1,1,1

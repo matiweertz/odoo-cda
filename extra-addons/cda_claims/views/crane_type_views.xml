@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="crane_type_view_list" model="ir.ui.view">
+        <field name="name">cda.claim.crane.type.list</field>
+        <field name="model">cda.claim.crane.type</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+            </list>
+        </field>
+    </record>
+    <record id="crane_type_view_form" model="ir.ui.view">
+        <field name="name">cda.claim.crane.type.form</field>
+        <field name="model">cda.claim.crane.type</field>
+        <field name="arch" type="xml">
+            <form string="Tipo de grúa">
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archivado"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <field name="name" />
+                        <field name="active" invisible="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_cda_crane_type" model="ir.actions.act_window">
+        <field name="name">Tipos de grúa</field>
+        <field name="res_model">cda.claim.crane.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">tipos-grua</field>
+    </record>
+</odoo>

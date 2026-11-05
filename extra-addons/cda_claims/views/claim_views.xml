@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="claim_view_form" model="ir.ui.view">
+        <field name="name">cda.claim.form</field>
+        <field name="model">cda.claim</field>
+        <field name="arch" type="xml">
+            <form string="Reclamo" class="o_cda_claim">
+                <header>
+                    <button
+                        string="Guardar reclamo"
+                        special="save"
+                        class="btn-primary"
+                        data-hotkey="s"
+                    />
+                    <button
+                        name="action_claim_start"
+                        type="object"
+                        string="En progreso"
+                        invisible="not id or not unattended"
+                    />
+                    <button
+                        name="action_claim_lawyers"
+                        type="object"
+                        string="En abogados"
+                        invisible="not id or closed"
+                    />
+                    <button
+                        name="action_claim_close"
+                        type="object"
+                        string="Cerrar reclamo"
+                        invisible="not id or closed"
+                    />
+                    <field
+                        name="stage_id"
+                        widget="statusbar"
+                        options="{'clickable': '1', 'fold_field': 'fold'}"
+                    />
+                </header>
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archivado"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <div class="oe_title">
+                        <h1>
+                            <field name="number" readonly="1" />
+                        </h1>
+                        <h2 class="o_row">
+                            <field name="name" placeholder="Asunto" />
+                        </h2>
+                    </div>
+                    <group>
+                        <group string="Ticket" name="claim_ticket">
+                            <field
+                                name="entry_code_id"
+                                options="{'no_create': True}"
+                            />
+                            <field name="claim_type_id" />
+                            <field
+                                name="subtype_id"
+                                options="{'no_create': True}"
+                            />
+                            <field name="detail_available" invisible="1" />
+                            <field
+                                name="detail_id"
+                                options="{'no_create': True}"
+                                invisible="not detail_available"
+                            />
+                            <field name="extra_kind" invisible="1" />
+                            <field
+                                name="extra_question"
+                                readonly="1"
+                                invisible="extra_kind == 'none'"
+                            />
+                            <field
+                                name="extra_choice"
+                                invisible="extra_kind == 'none'"
+                            />
+                            <field
+                                name="equipment_detail"
+                                invisible="extra_kind != 'equipment' or extra_choice != 'yes'"
+                            />
+                            <field
+                                name="user_id"
+                                widget="many2one_avatar_user"
+                                options="{'no_create': True}"
+                            />
+                            <field
+                                name="company_id"
+                                options="{'no_create': True}"
+                                groups="base.group_multi_company"
+                            />
+                            <field name="unattended" invisible="1" />
+                            <field name="closed" invisible="1" />
+                        </group>
+                        <group string="Contacto" name="claim_contact">
+                            <field name="phone" widget="phone" />
+                            <field name="email" widget="email" />
+                            <field name="address" />
+                        </group>
+                    </group>
+                    <group
+                        string="Grúa"
+                        name="claim_crane"
+                        invisible="extra_choice != 'yes' or extra_kind != 'crane'"
+                    >
+                        <group name="crane_ident">
+                            <field name="crane_plate" />
+                            <field
+                                name="crane_type_id"
+                                options="{'no_create': True}"
+                            />
+                            <field name="crane_date" />
+                        </group>
+                        <group name="crane_hours">
+                            <field name="crane_time_in" placeholder="HH:MM" />
+                            <field name="crane_time_out" placeholder="HH:MM" />
+                        </group>
+                    </group>
+                    <group string="Relato del hecho" name="claim_relato">
+                        <field
+                            name="description"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="Describa cómo ocurrió: qué encontró en la calzada (pozo, bache, desnivel), si pudo verlo antes, si había otros vehículos, y qué hizo después."
+                        />
+                    </group>
+                    <notebook>
+                        <page name="claim_attachments" string="Adjuntos">
+                            <field name="attachment_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <button
+                                        name="action_preview"
+                                        type="object"
+                                        string="Previsualizar"
+                                    />
+                                    <field
+                                        name="image_preview"
+                                        widget="image"
+                                        options="{'size': [64, 64]}"
+                                        readonly="1"
+                                    />
+                                    <field name="name" />
+                                    <field name="kind" />
+                                    <field
+                                        name="file"
+                                        filename="file_name"
+                                        widget="binary"
+                                    />
+                                    <field name="file_name" column_invisible="1" />
+                                    <field name="file_size" />
+                                    <field name="note" optional="show" />
+                                    <field name="url" optional="show" />
+                                    <field name="open_url" column_invisible="1" />
+                                </list>
+                            </field>
+                        </page>
+                        <page name="claim_tracking" string="Seguimiento">
+                            <group>
+                                <field name="external_ref" readonly="1" />
+                                <field name="create_date" readonly="1" />
+                                <field name="create_uid" readonly="1" />
+                                <field name="merged_into_id" readonly="1" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="claim_view_list" model="ir.ui.view">
+        <field name="name">cda.claim.list</field>
+        <field name="model">cda.claim</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="number" decoration-bf="1" />
+                <field name="claim_date" />
+                <field name="entry_code_id" />
+                <field name="claim_type_id" optional="show" />
+                <field name="subtype_id" optional="show" />
+                <field name="detail_id" optional="show" />
+                <field name="name" optional="show" />
+                <field name="phone" optional="show" />
+                <field name="email" optional="show" />
+                <field
+                    name="user_id"
+                    widget="many2one_avatar_user"
+                    optional="hide"
+                />
+                <field name="unattended" column_invisible="1" />
+                <field name="closed" column_invisible="1" />
+                <field
+                    name="stage_id"
+                    widget="badge"
+                    decoration-info="unattended"
+                    decoration-success="not unattended and not closed"
+                    decoration-muted="closed"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="claim_view_kanban" model="ir.ui.view">
+        <field name="name">cda.claim.kanban</field>
+        <field name="model">cda.claim</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id" class="o_kanban_small_column">
+                <field name="entry_code_id" />
+                <field name="claim_type_id" />
+                <field name="stage_id" />
+                <templates>
+                    <t t-name="card">
+                        <field name="number" class="fw-bold" />
+                        <field name="name" class="text-muted text-truncate" />
+                        <footer class="pt-1">
+                            <field name="claim_type_id" class="me-2" />
+                            <field name="entry_code_id" />
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="claim_view_search" model="ir.ui.view">
+        <field name="name">cda.claim.search</field>
+        <field name="model">cda.claim</field>
+        <field name="arch" type="xml">
+            <search>
+                <field
+                    name="number"
+                    string="Reclamo"
+                    filter_domain="['|',('number','ilike',self),('name','ilike',self)]"
+                />
+                <field name="description" />
+                <field name="phone" />
+                <field name="email" />
+                <field name="external_ref" />
+                <field name="entry_code_id" />
+                <field name="claim_type_id" />
+                <field name="subtype_id" />
+                <field name="detail_id" />
+                <field name="user_id" />
+                <filter name="open" string="Abiertos" domain="[('closed','=',False)]" />
+                <filter
+                    name="closed_claims"
+                    string="Cerrados"
+                    domain="[('closed','=',True)]"
+                />
+                <filter name="claim_date_range" string="Fecha" date="claim_date" />
+                <separator />
+                <filter name="archived" string="Archivados" domain="[('active','=',False)]" />
+                <separator />
+                <filter
+                    name="group_stage"
+                    string="Estado"
+                    context="{'group_by': 'stage_id'}"
+                />
+                <filter
+                    name="group_claim_type"
+                    string="Tipo de reclamo"
+                    context="{'group_by': 'claim_type_id'}"
+                />
+                <filter
+                    name="group_entry_code"
+                    string="Medio de entrada"
+                    context="{'group_by': 'entry_code_id'}"
+                />
+            </search>
+        </field>
+    </record>
+</odoo>

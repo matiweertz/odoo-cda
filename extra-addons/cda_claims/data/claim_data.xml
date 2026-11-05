@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="cda_claim_sequence" model="ir.sequence">
+            <field name="name">Reclamos</field>
+            <field name="code">cda.claim.sequence</field>
+            <field name="prefix"></field>
+            <field name="padding">5</field>
+            <field name="use_date_range" eval="True" />
+            <field name="company_id" eval="False" />
+        </record>
+
+        <record id="claim_stage_open" model="cda.claim.stage">
+            <field name="name">Abierto</field>
+            <field name="sequence">1</field>
+            <field name="unattended" eval="True" />
+            <field name="closed" eval="False" />
+            <field name="fold" eval="False" />
+        </record>
+        <record id="claim_stage_in_progress" model="cda.claim.stage">
+            <field name="name">En progreso</field>
+            <field name="sequence">2</field>
+            <field name="unattended" eval="False" />
+            <field name="closed" eval="False" />
+            <field name="fold" eval="False" />
+        </record>
+        <record id="claim_stage_lawyers" model="cda.claim.stage">
+            <field name="name">En abogados</field>
+            <field name="sequence">3</field>
+            <field name="unattended" eval="False" />
+            <field name="closed" eval="False" />
+            <field name="fold" eval="False" />
+        </record>
+        <record id="claim_stage_closed" model="cda.claim.stage">
+            <field name="name">Cerrado</field>
+            <field name="sequence">4</field>
+            <field name="unattended" eval="False" />
+            <field name="closed" eval="True" />
+            <field name="fold" eval="False" />
+        </record>
+
+        <record id="entry_code_140" model="cda.claim.entry.code">
+            <field name="code">140</field>
+            <field name="name">Emergencias, persona 24 hs</field>
+            <field name="category">users_public</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">10</field>
+        </record>
+        <record id="entry_code_bot" model="cda.claim.entry.code">
+            <field name="code">BOT</field>
+            <field name="name">Botón de asistencia web</field>
+            <field name="category">users_public</field>
+            <field name="is_automated" eval="True" />
+            <field name="sequence">20</field>
+        </record>
+        <record id="entry_code_0800" model="cda.claim.entry.code">
+            <field name="code">0800</field>
+            <field name="name">Línea gratuita</field>
+            <field name="category">users_public</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">30</field>
+        </record>
+        <record id="entry_code_mail" model="cda.claim.entry.code">
+            <field name="code">MAIL</field>
+            <field name="name">Correo de atención al usuario</field>
+            <field name="category">users_public</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">40</field>
+        </record>
+        <record id="entry_code_web" model="cda.claim.entry.code">
+            <field name="code">WEB</field>
+            <field name="name">Formularios web</field>
+            <field name="category">users_public</field>
+            <field name="is_automated" eval="True" />
+            <field name="sequence">50</field>
+        </record>
+        <record id="entry_code_wsp" model="cda.claim.entry.code">
+            <field name="code">WSP</field>
+            <field name="name">ChatBot y WhatsApp</field>
+            <field name="category">users_public</field>
+            <field name="is_automated" eval="True" />
+            <field name="sequence">60</field>
+        </record>
+        <record id="entry_code_caud" model="cda.claim.entry.code">
+            <field name="code">CAUD</field>
+            <field name="name">CAU de la DNV, en tiempo real</field>
+            <field name="category">users_public</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">70</field>
+        </record>
+        <record id="entry_code_pres" model="cda.claim.entry.code">
+            <field name="code">PRES</field>
+            <field name="name">Atención presencial</field>
+            <field name="category">users_public</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">80</field>
+        </record>
+        <record id="entry_code_mov" model="cda.claim.entry.code">
+            <field name="code">MOV</field>
+            <field name="name">Móviles de seguridad vial</field>
+            <field name="category">own_staff</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">90</field>
+        </record>
+        <record id="entry_code_grp" model="cda.claim.entry.code">
+            <field name="code">GRP</field>
+            <field name="name">Grupo WhatsApp: solo avisar</field>
+            <field name="category">own_staff</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">100</field>
+        </record>
+        <record id="entry_code_pea" model="cda.claim.entry.code">
+            <field name="code">PEA</field>
+            <field name="name">Personal de peaje</field>
+            <field name="category">own_staff</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">110</field>
+        </record>
+        <record id="entry_code_con" model="cda.claim.entry.code">
+            <field name="code">CON</field>
+            <field name="name">Cuadrillas de conservación</field>
+            <field name="category">own_staff</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">120</field>
+        </record>
+        <record id="entry_code_frm" model="cda.claim.entry.code">
+            <field name="code">FRM</field>
+            <field name="name">Formulario del móvil</field>
+            <field name="category">own_staff</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">130</field>
+        </record>
+        <record id="entry_code_aut" model="cda.claim.entry.code">
+            <field name="code">AUT</field>
+            <field name="name">Policía y otras autoridades</field>
+            <field name="category">formal</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">140</field>
+        </record>
+        <record id="entry_code_leg" model="cda.claim.entry.code">
+            <field name="code">LEG</field>
+            <field name="name">Carta documento o mediación</field>
+            <field name="category">formal</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">150</field>
+        </record>
+        <record id="entry_code_dnv" model="cda.claim.entry.code">
+            <field name="code">DNV</field>
+            <field name="name">Notas de la DNV</field>
+            <field name="category">formal</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">160</field>
+        </record>
+        <record id="entry_code_seg" model="cda.claim.entry.code">
+            <field name="code">SEG</field>
+            <field name="name">Seguimiento: estudio, Nación</field>
+            <field name="category">formal</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">170</field>
+        </record>
+    </data>
+</odoo>

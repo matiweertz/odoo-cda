@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="crane_type_light" model="cda.claim.crane.type">
+            <field name="name">Liviana</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="crane_type_heavy" model="cda.claim.crane.type">
+            <field name="name">Pesada</field>
+            <field name="sequence">20</field>
+        </record>
+    </data>
+</odoo>

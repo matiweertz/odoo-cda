@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="claim_view_form_frm" model="ir.ui.view">
+        <field name="name">cda.claim.form.reclamo</field>
+        <field name="model">cda.claim</field>
+        <field name="inherit_id" ref="cda_claims.claim_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='claim_attachments']" position="after">
+                <page name="claim_form" string="Formulario de reclamo">
+                    <field name="currency_id" invisible="1" />
+                    <group>
+                        <group string="1. Datos del denunciante" name="den_denunciante">
+                            <field name="den_nombre" />
+                            <field name="den_caracter" />
+                            <field name="den_doc_tipo" />
+                            <field name="den_doc_num" />
+                            <field name="den_nacionalidad" />
+                            <field name="den_localidad" />
+                        </group>
+                        <group string="2. Vehículo" name="den_vehiculo">
+                            <field name="den_vehicle_type" />
+                            <field name="den_make" />
+                            <field name="den_model" />
+                            <field name="den_plate" />
+                            <field name="den_year" />
+                            <field name="den_tires" />
+                            <field name="den_owner" />
+                            <field name="den_insurer" />
+                            <field name="den_policy" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="2b. Conductor al momento del hecho" name="den_conductor">
+                            <field name="den_driver_name" />
+                            <field name="den_driver_doc" />
+                            <field name="den_driver_license" />
+                        </group>
+                        <group string="3. Fecha y ubicación del hecho" name="den_ubicacion">
+                            <field name="claim_date" />
+                            <field name="den_time" placeholder="HH:MM" />
+                            <field name="den_km" />
+                            <field name="den_direction" />
+                            <field name="den_lane" />
+                            <field name="den_reference" />
+                            <field name="den_coords" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="4. Circunstancias" name="den_circunstancias">
+                            <field name="den_light" />
+                            <field name="den_weather" />
+                            <field name="den_speed" />
+                            <field name="den_signage" />
+                            <field name="den_occupants" />
+                            <field name="den_injured" />
+                            <field name="den_injury_detail" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="5. Daños — componentes" name="den_componentes">
+                            <field name="den_damage_tire" />
+                            <field name="den_damage_rim" />
+                            <field name="den_damage_alignment" />
+                            <field name="den_damage_suspension" />
+                            <field name="den_damage_axle" />
+                            <field name="den_damage_body" />
+                            <field name="den_damage_underbody" />
+                            <field name="den_damage_other" />
+                        </group>
+                        <group string="5. Daños — posición" name="den_posiciones">
+                            <field name="den_position_fl" />
+                            <field name="den_position_fr" />
+                            <field name="den_position_rl" />
+                            <field name="den_position_rr" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="5. Daños — detalle" name="den_danio_detalle">
+                            <field name="den_damage_detail" />
+                        </group>
+                        <group string="5. Daños — monto e inspección" name="den_monto">
+                            <field name="den_amount" />
+                            <field name="den_repaired" />
+                            <field name="den_inspection_available" />
+                            <field name="den_inspection_where" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="6. Constancias" name="den_constancias">
+                            <field name="den_toll_ticket" />
+                            <field name="den_toll_detail" />
+                            <field name="den_police_report" />
+                            <field name="den_police_detail" />
+                            <field name="den_witnesses" />
+                            <field name="den_third_parties" />
+                        </group>
+                        <group string="6. Asistencia recibida" name="den_asistencia">
+                            <field name="den_help_staff" />
+                            <field name="den_help_crane" />
+                            <field name="den_help_insurer" />
+                            <field name="den_help_police" />
+                            <field name="den_help_none" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="7. Documentación" name="den_documentacion">
+                            <div class="text-muted">
+                                Los archivos se cargan en la pestaña
+                                <strong>Adjuntos</strong>.
+                            </div>
+                        </group>
+                        <group string="8. Declaraciones" name="den_declaraciones">
+                            <field name="den_sworn" />
+                            <field name="den_data_consent" />
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
