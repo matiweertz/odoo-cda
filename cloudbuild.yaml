@@ -69,7 +69,7 @@ steps:
           done
           sudo docker exec -u odoo odoo-container \
             odoo -c /etc/odoo/odoo.conf -d ${_DB_NAME} \
-            -u cda_claims --stop-after-init --no-http --workers=0
+            -u cda_claims,cda_api --stop-after-init --no-http --workers=0
           RC=\$?
           sudo docker restart odoo-container
           exit \$RC
