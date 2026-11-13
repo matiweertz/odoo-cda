@@ -252,6 +252,15 @@ class CdaClaimApi(models.AbstractModel):
                 vals[field_name] = self._replace_commands(rows, label, allowed)
         return vals
 
+    def _rows(self, claim: Any, field_name: str, allowed: tuple[str, ...]) -> list[Any]:
+        """Devuelve las líneas de un one2many si el modelo lo tiene.
+
+        cda_api nació con un modelo que traía líneas frm_*; cda_claims no las
+        tiene, y accederlas rompía el detalle con un 500.
+        """
+        if field_name not in claim._fields:
+            return []
+        return [self._row(record, allowed) for record in claim[field_name].sorted("id")]
     def _serialize_summary(self, claim: Any) -> dict[str, Any]:
         return {
             "id": claim.id,
@@ -275,7 +284,7 @@ class CdaClaimApi(models.AbstractModel):
             "address": claim.address or None,
             "external_ref": claim.external_ref or None,
             "active": bool(claim.active),
-            "is_frm": bool(claim.is_frm),
+            "is_frm": bool(claim.is_frm) if "is_frm" in claim._fields else False,
             "closed": bool(claim.closed),
             "unattended": bool(claim.unattended),
             "claim_type": self._code_reference(claim.claim_type_id),
@@ -284,18 +293,9 @@ class CdaClaimApi(models.AbstractModel):
             "user": self._reference(claim.user_id),
             "company": self._reference(claim.company_id),
             "frm": frm,
-            "vehicles": [
-                self._row(record, VEHICLE_FIELDS)
-                for record in claim.frm_vehicle_ids.sorted("id")
-            ],
-            "injured": [
-                self._row(record, INJURED_FIELDS)
-                for record in claim.frm_injured_ids.sorted("id")
-            ],
-            "witnesses": [
-                self._row(record, WITNESS_FIELDS)
-                for record in claim.frm_witness_ids.sorted("id")
-            ],
+            "vehicles": self._rows(claim, "frm_vehicle_ids", VEHICLE_FIELDS),
+            "injured": self._rows(claim, "frm_injured_ids", INJURED_FIELDS),
+            "witnesses": self._rows(claim, "frm_witness_ids", WITNESS_FIELDS),
             "attachments": [
                 {
                     "id": attachment.id,
