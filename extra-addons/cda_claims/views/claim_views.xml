@@ -67,6 +67,10 @@
                                 name="detail_id"
                                 options="{'no_create': True}"
                                 invisible="not detail_available"
+                            />                            <field name="es_accidente" invisible="1" />
+                            <field
+                                name="tipo_accidente"
+                                invisible="not es_accidente"
                             />
                             <field name="extra_kind" invisible="1" />
                             <field
@@ -107,7 +111,6 @@
                         invisible="extra_choice != 'yes' or extra_kind != 'crane'"
                     >
                         <group name="crane_ident">
-                            <field name="crane_plate" />
                             <field
                                 name="crane_type_id"
                                 options="{'no_create': True}"
