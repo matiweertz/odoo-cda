@@ -174,16 +174,23 @@
         <record id="detail_con_lesionados" model="cda.claim.detail">
             <field name="subtype_id" ref="subtype_accidente" />
             <field name="code">CL</field>
-            <field name="name">Con personas lesionadas</field>
+            <field name="name">Personas lesionadas</field>
             <field name="extra">crane</field>
             <field name="sequence">10</field>
         </record>
         <record id="detail_sin_lesionados" model="cda.claim.detail">
             <field name="subtype_id" ref="subtype_accidente" />
             <field name="code">SL</field>
-            <field name="name">Sin personas lesionadas</field>
+            <field name="name">Personas no lesionadas</field>
             <field name="extra">crane</field>
             <field name="sequence">20</field>
+        </record>
+        <record id="detail_ambos_lesionados" model="cda.claim.detail">
+            <field name="subtype_id" ref="subtype_accidente" />
+            <field name="code">AM</field>
+            <field name="name">Ambos</field>
+            <field name="extra">crane</field>
+            <field name="sequence">30</field>
         </record>
     </data>
 </odoo>

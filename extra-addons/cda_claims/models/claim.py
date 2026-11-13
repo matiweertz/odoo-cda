@@ -65,6 +65,21 @@ class CdaClaim(models.Model):
         ondelete="restrict",
         index=True,
     )
+    tipo_lesion = fields.Selection(
+        [
+            ("grave", "Grave"),
+            ("leve", "Leve"),
+            ("fallecido", "Fallecido"),
+        ],
+        string="Tipo de lesión",
+    )
+    cantidad_lesionados = fields.Integer(string="Cantidad de lesionados")
+    hay_lesionados = fields.Boolean(
+        compute="_compute_hay_lesionados",
+        store=True,
+        string="Hay lesionados",
+        help="Se activa cuando el detalle es Personas lesionadas o Ambos.",
+    )
     tipo_accidente = fields.Selection(
         [
             ("vuelco", "Vuelco"),
@@ -205,6 +220,10 @@ class CdaClaim(models.Model):
         for claim in self:
             claim.detail_available = bool(claim.subtype_id.detail_ids)
 
+    @api.depends("detail_id.code")
+    def _compute_hay_lesionados(self):
+        for claim in self:
+            claim.hay_lesionados = (claim.detail_id.code or "") in ("CL", "AM")
     @api.depends("subtype_id.code")
     def _compute_es_accidente(self):
         for claim in self:

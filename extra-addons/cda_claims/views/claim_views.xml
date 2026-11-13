@@ -68,20 +68,20 @@
                                 options="{'no_create': True}"
                                 invisible="not detail_available"
                             />                            <field name="es_accidente" invisible="1" />
+                            <field name="hay_lesionados" invisible="1" />
+                            <field
+                                name="tipo_lesion"
+                                invisible="not hay_lesionados"
+                            />
+                            <field
+                                name="cantidad_lesionados"
+                                invisible="not hay_lesionados"
+                            />
                             <field
                                 name="tipo_accidente"
                                 invisible="not es_accidente"
                             />
                             <field name="extra_kind" invisible="1" />
-                            <field
-                                name="extra_question"
-                                readonly="1"
-                                invisible="extra_kind == 'none'"
-                            />
-                            <field
-                                name="extra_choice"
-                                invisible="extra_kind == 'none'"
-                            />
                             <field
                                 name="equipment_detail"
                                 invisible="extra_kind != 'equipment' or extra_choice != 'yes'"
@@ -108,16 +108,30 @@
                     <group
                         string="Grúa"
                         name="claim_crane"
-                        invisible="extra_choice != 'yes' or extra_kind != 'crane'"
+                        invisible="extra_kind != 'crane'"
                     >
-                        <group name="crane_ident">
+                        <group name="crane_pregunta">
+                            <field
+                                name="extra_question"
+                                readonly="1"
+                                nolabel="1"
+                            />
+                            <field name="extra_choice" />
+                        </group>
+                        <group
+                            name="crane_ident"
+                            invisible="extra_choice != 'yes'"
+                        >
                             <field
                                 name="crane_type_id"
                                 options="{'no_create': True}"
                             />
                             <field name="crane_date" />
                         </group>
-                        <group name="crane_hours">
+                        <group
+                            name="crane_hours"
+                            invisible="extra_choice != 'yes'"
+                        >
                             <field name="crane_time_in" placeholder="HH:MM" />
                             <field name="crane_time_out" placeholder="HH:MM" />
                         </group>
