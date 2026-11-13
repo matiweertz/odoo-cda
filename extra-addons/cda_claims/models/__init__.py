@@ -3,6 +3,7 @@ from . import claim_attachment
 from . import claim_detail
 from . import claim_frm
 from . import claim_merge_wizard
+from . import claim_siniestro
 from . import claim_subtype
 from . import claim_type
 from . import crane_type
