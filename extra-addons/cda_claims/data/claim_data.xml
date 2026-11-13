@@ -102,6 +102,13 @@
             <field name="is_automated" eval="False" />
             <field name="sequence">90</field>
         </record>
+        <record id="entry_code_grp" model="cda.claim.entry.code">
+            <field name="code">GRP</field>
+            <field name="name">Grupo WhatsApp: solo avisar</field>
+            <field name="category">own_staff</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">100</field>
+        </record>
         <record id="entry_code_pea" model="cda.claim.entry.code">
             <field name="code">PEA</field>
             <field name="name">Personal de peaje</field>
@@ -115,6 +122,13 @@
             <field name="category">own_staff</field>
             <field name="is_automated" eval="False" />
             <field name="sequence">120</field>
+        </record>
+        <record id="entry_code_frm" model="cda.claim.entry.code">
+            <field name="code">FRM</field>
+            <field name="name">Formulario del móvil</field>
+            <field name="category">own_staff</field>
+            <field name="is_automated" eval="False" />
+            <field name="sequence">130</field>
         </record>
         <record id="entry_code_aut" model="cda.claim.entry.code">
             <field name="code">AUT</field>

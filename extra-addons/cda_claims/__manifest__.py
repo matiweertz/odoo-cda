@@ -1,6 +1,6 @@
 {
     "name": "CDA Reclamos",
-    "version": "19.0.1.7.0",
+    "version": "19.0.1.6.1",
     "summary": "Reclamos de Caminos del Aconcagua",
     "description": """
 GestiÃ³n de reclamos de Caminos del Aconcagua.
@@ -25,7 +25,6 @@ La API REST vive en el mÃ³dulo cda_api, que autentica con API keys de res.user
         "data/crane_type_data.xml",
         "views/claim_views.xml",
         "views/claim_frm_views.xml",
-        "views/claim_siniestro_views.xml",
         "views/entry_code_views.xml",
         "views/claim_type_views.xml",
         "views/claim_taxonomy_views.xml",

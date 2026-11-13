@@ -119,23 +119,11 @@ class CdaClaimForm(models.Model):
         help="Cantidad, incluido el conductor.",
     )
     den_injured = fields.Selection(
-        [
-            ("injured", "Personas lesionadas"),
-            ("no_injured", "Personas no lesionadas"),
-            ("both", "Ambos"),
-        ],
-        string="Personas lesionadas",
+        [("no", "No"), ("yes", "Sí")],
+        string="¿Hubo personas lesionadas?",
     )
-    den_injury_severity = fields.Selection(
-        [
-            ("grave", "Grave"),
-            ("leve", "Leve"),
-            ("fallecido", "Fallecido"),
-        ],
-        string="Tipo de lesión",
-    )
-    den_injury_count = fields.Integer(string="Cantidad de lesionados")
     den_injury_detail = fields.Char(string="Detalle de lesiones y atención")
+
     den_damage_tire = fields.Boolean(string="Neumático / cubierta")
     den_damage_rim = fields.Boolean(string="Llanta")
     den_damage_alignment = fields.Boolean(string="Tren delantero / alineación")
