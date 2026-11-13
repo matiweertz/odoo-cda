@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Árbol inicial del chatbot, armado sobre el análisis del bot de Corresur
+         y con los datos reales de Caminos del Aconcagua (rutas, tarifas,
+         teléfonos y canales del sitio).
+
+         noupdate="1": se carga una vez y después se edita desde la UI sin que
+         un -u pise los cambios del cliente. -->
+    <data noupdate="1">
+
+        <!-- Medio de entrada para los reclamos que llegan del chat -->
+        <record id="subtype_consulta" model="cda.claim.subtype">
+            <field name="type_id" ref="cda_claims.claim_type_reclamos" />
+            <field name="code">CS</field>
+            <field name="name">Consulta</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- ============================ RAÍZ ============================ -->
+        <record id="nodo_raiz" model="cda.chatbot.node">
+            <field name="code">raiz</field>
+            <field name="name">Inicio</field>
+            <field name="kind">menu</field>
+            <field
+                name="message"
+            >Hola. Soy tu asistente de viaje en Caminos del Aconcagua. ¿En qué te puedo ayudar?</field>
+            <field name="allow_back" eval="False" />
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- ======================== EMERGENCIAS ========================= -->
+        <record id="nodo_emergencias" model="cda.chatbot.node">
+            <field name="code">emergencias</field>
+            <field name="name">🚨 Emergencias</field>
+            <field name="kind">phone</field>
+            <field name="phone">140</field>
+            <field
+                name="message"
+            >Para asistencia inmediata llamá al Centro de Control: 140. Atención las 24 hs, los 365 días.</field>
+            <field name="parent_id" ref="nodo_raiz" />
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- ====================== ESTADO DE LA RUTA ===================== -->
+        <record id="nodo_estado_ruta" model="cda.chatbot.node">
+            <field name="code">estado-ruta</field>
+            <field name="name">🛣 Estado de la ruta</field>
+            <field name="kind">menu</field>
+            <field name="message">Elegí tu ruta para ver el estado actualizado:</field>
+            <field name="parent_id" ref="nodo_raiz" />
+            <field name="sequence">20</field>
+        </record>
+        <record id="nodo_estado_rn7" model="cda.chatbot.node">
+            <field name="code">estado-ruta.rn7</field>
+            <field name="name">Ruta 7</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >Estado de RN 7: • Km 1000 a 1010: tareas de bacheo programadas, reducción de calzada. • Km 1025 a 1035: reposición de barandas metálicas.</field>
+            <field name="parent_id" ref="nodo_estado_ruta" />
+            <field name="sequence">10</field>
+        </record>
+        <record id="nodo_estado_rn40" model="cda.chatbot.node">
+            <field name="code">estado-ruta.rn40</field>
+            <field name="name">Ruta 40</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >Estado de RN 40: • Km 60 a 65: corte de pasto y limpieza de banquinas.</field>
+            <field name="parent_id" ref="nodo_estado_ruta" />
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- =================== TARIFAS Y TELEPASE ======================= -->
+        <record id="nodo_tarifas" model="cda.chatbot.node">
+            <field name="code">tarifas</field>
+            <field name="name">💰 Tarifas y TelePASE</field>
+            <field name="kind">menu</field>
+            <field name="message">¿Qué necesitás?</field>
+            <field name="parent_id" ref="nodo_raiz" />
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="nodo_tarifas_cuadro" model="cda.chatbot.node">
+            <field name="code">tarifas.cuadro</field>
+            <field name="name">Cuadro tarifario</field>
+            <field name="kind">menu</field>
+            <field name="message">Elegí la categoría de tu vehículo:</field>
+            <field name="parent_id" ref="nodo_tarifas" />
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="nodo_tarifa_c0" model="cda.chatbot.node">
+            <field name="code">tarifas.cat0</field>
+            <field name="name">Categoría 0 – Moto</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >Motocicletas — TelePASE $ 2.715,35 · Pago manual $ 5.430,70</field>
+            <field name="parent_id" ref="nodo_tarifas_cuadro" />
+            <field name="sequence">10</field>
+        </record>
+        <record id="nodo_tarifa_c1" model="cda.chatbot.node">
+            <field name="code">tarifas.cat1</field>
+            <field name="name">Categoría 1 – Auto</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >Hasta 2 ejes y hasta 2,30 m de alto, sin rueda doble — TelePASE $ 5.430,70 · Pago manual $ 10.861,40</field>
+            <field name="parent_id" ref="nodo_tarifas_cuadro" />
+            <field name="sequence">20</field>
+        </record>
+        <record id="nodo_tarifa_c2" model="cda.chatbot.node">
+            <field name="code">tarifas.cat2</field>
+            <field name="name">Categoría 2 – Camioneta</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >Hasta 2 ejes y más de 2,30 m de alto con rueda doble — TelePASE $ 10.861,40 · Pago manual $ 21.722,79</field>
+            <field name="parent_id" ref="nodo_tarifas_cuadro" />
+            <field name="sequence">30</field>
+        </record>
+        <record id="nodo_tarifa_c3" model="cda.chatbot.node">
+            <field name="code">tarifas.cat3</field>
+            <field name="name">Categoría 3</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >3 ejes y más de 2,30 m con rueda doble — TelePASE $ 16.292,09 · Pago manual $ 32.584,19</field>
+            <field name="parent_id" ref="nodo_tarifas_cuadro" />
+            <field name="sequence">40</field>
+        </record>
+        <record id="nodo_tarifa_c4" model="cda.chatbot.node">
+            <field name="code">tarifas.cat4</field>
+            <field name="name">Categoría 4</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >4 ejes — TelePASE $ 21.722,79 · Pago manual $ 43.445,58</field>
+            <field name="parent_id" ref="nodo_tarifas_cuadro" />
+            <field name="sequence">50</field>
+        </record>
+        <record id="nodo_tarifa_c5" model="cda.chatbot.node">
+            <field name="code">tarifas.cat5</field>
+            <field name="name">Categoría 5</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >5 ejes — TelePASE $ 27.153,49 · Pago manual $ 54.306,98</field>
+            <field name="parent_id" ref="nodo_tarifas_cuadro" />
+            <field name="sequence">60</field>
+        </record>
+        <record id="nodo_tarifa_c6" model="cda.chatbot.node">
+            <field name="code">tarifas.cat6</field>
+            <field name="name">Categoría 6</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >6 ejes — TelePASE $ 32.584,19 · Pago manual $ 65.168,37</field>
+            <field name="parent_id" ref="nodo_tarifas_cuadro" />
+            <field name="sequence">70</field>
+        </record>
+        <record id="nodo_tarifa_c7" model="cda.chatbot.node">
+            <field name="code">tarifas.cat7</field>
+            <field name="name">Categoría 7</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >7 ejes — TelePASE $ 38.014,88 · Pago manual $ 76.029,77</field>
+            <field name="parent_id" ref="nodo_tarifas_cuadro" />
+            <field name="sequence">80</field>
+        </record>
+        <record id="nodo_tarifa_c8" model="cda.chatbot.node">
+            <field name="code">tarifas.cat8</field>
+            <field name="name">Categoría 8</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >8 y más ejes — TelePASE $ 48.876,28 · Pago manual $ 97.752,56</field>
+            <field name="parent_id" ref="nodo_tarifas_cuadro" />
+            <field name="sequence">90</field>
+        </record>
+        <record id="nodo_tarifa_esp" model="cda.chatbot.node">
+            <field name="code">tarifas.especial</field>
+            <field name="name">Categoría especial</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >Vehículos con permiso de circulación especial: se aplica la tarifa de Categoría 1 multiplicada por la cantidad de ejes.</field>
+            <field name="parent_id" ref="nodo_tarifas_cuadro" />
+            <field name="sequence">100</field>
+        </record>
+
+        <record id="nodo_tarifas_telepase" model="cda.chatbot.node">
+            <field name="code">tarifas.telepase</field>
+            <field name="name">Adherir TelePASE</field>
+            <field name="kind">link</field>
+            <field name="url">https://www.telepase.com.ar/</field>
+            <field
+                name="message"
+            >Gestioná tu alta o medios de pago en el sitio de TelePASE.</field>
+            <field name="parent_id" ref="nodo_tarifas" />
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- ========================= TU VIAJE ========================== -->
+        <record id="nodo_viaje" model="cda.chatbot.node">
+            <field name="code">viaje</field>
+            <field name="name">🧭 Tu viaje</field>
+            <field name="kind">menu</field>
+            <field name="message">¿Qué necesitás para tu viaje?</field>
+            <field name="parent_id" ref="nodo_raiz" />
+            <field name="sequence">40</field>
+        </record>
+        <record id="nodo_viaje_asistencia" model="cda.chatbot.node">
+            <field name="code">viaje.asistencia</field>
+            <field name="name">Asistencia en traza</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >Auxilio mecánico y remolque hasta el sector de detención segura más cercano. El servicio es gratuito.</field>
+            <field name="parent_id" ref="nodo_viaje" />
+            <field name="sequence">10</field>
+        </record>
+        <record id="nodo_viaje_sectores" model="cda.chatbot.node">
+            <field name="code">viaje.sectores</field>
+            <field name="name">Sectores de detención segura</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >Son espacios habilitados para detenerte con seguridad. Podés ver su ubicación en el mapa de la portada del sitio.</field>
+            <field name="parent_id" ref="nodo_viaje" />
+            <field name="sequence">20</field>
+        </record>
+        <record id="nodo_viaje_peajes" model="cda.chatbot.node">
+            <field name="code">viaje.peajes</field>
+            <field name="name">Estaciones de peaje</field>
+            <field name="kind">message</field>
+            <field
+                name="message"
+            >Las estaciones son La Paz (km 899) y Las Cuevas (km 1234) sobre la RN 7.</field>
+            <field name="parent_id" ref="nodo_viaje" />
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- =================== ATENCIÓN Y RECLAMOS ===================== -->
+        <record id="nodo_atencion" model="cda.chatbot.node">
+            <field name="code">atencion</field>
+            <field name="name">🎧 Atención y reclamos</field>
+            <field name="kind">menu</field>
+            <field name="message">Estos son los canales de atención:</field>
+            <field name="parent_id" ref="nodo_raiz" />
+            <field name="sequence">50</field>
+        </record>
+        <record id="nodo_atencion_0800" model="cda.chatbot.node">
+            <field name="code">atencion.0800</field>
+            <field name="name">📞 Llamar 0-800-999-5555</field>
+            <field name="kind">phone</field>
+            <field name="phone">08009995555</field>
+            <field
+                name="message"
+            >Atención comercial, lunes a viernes de 9 a 17 hs.</field>
+            <field name="parent_id" ref="nodo_atencion" />
+            <field name="sequence">10</field>
+        </record>
+        <record id="nodo_atencion_whatsapp" model="cda.chatbot.node">
+            <field name="code">atencion.whatsapp</field>
+            <field name="name">💬 Escribir por WhatsApp</field>
+            <field name="kind">whatsapp</field>
+            <field name="phone">5492613438803</field>
+            <field
+                name="whatsapp_message"
+            >Hola, vengo del chat de Caminos del Aconcagua y necesito asistencia.</field>
+            <field
+                name="message"
+            >Te paso al WhatsApp de atención para que lo resuelvan con una persona.</field>
+            <field name="parent_id" ref="nodo_atencion" />
+            <field name="sequence">20</field>
+        </record>
+        <record id="nodo_atencion_mail" model="cda.chatbot.node">
+            <field name="code">atencion.mail</field>
+            <field name="name">✉️ Escribir un correo</field>
+            <field name="kind">link</field>
+            <field name="url">mailto:atencionalusuario@caminosdelaconcagua.com.ar</field>
+            <field
+                name="message"
+            >Podés escribirnos a atencionalusuario@caminosdelaconcagua.com.ar</field>
+            <field name="parent_id" ref="nodo_atencion" />
+            <field name="sequence">30</field>
+        </record>
+        <record id="nodo_atencion_reclamo" model="cda.chatbot.node">
+            <field name="code">atencion.reclamo</field>
+            <field name="name">📝 Dejar un reclamo</field>
+            <field name="kind">claim</field>
+            <field
+                name="message"
+            >Dejanos tu mail y contanos qué pasó. Te contactamos a la brevedad.</field>
+            <field name="parent_id" ref="nodo_atencion" />
+            <field name="sequence">40</field>
+            <field name="claim_type_id" ref="cda_claims.claim_type_reclamos" />
+            <field name="subtype_id" ref="subtype_consulta" />
+        </record>
+
+    </data>
+</odoo>

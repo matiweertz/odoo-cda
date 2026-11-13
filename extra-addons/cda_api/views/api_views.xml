@@ -1,53 +1,76 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <!-- La configuración de la API va como bloque DENTRO del formulario de
+         Ajustes, no como vista propia.
+
+         Por qué: ir.ui.view ordena por `create_date desc, id desc` y la vista
+         por defecto de un modelo es la última primaria. Una vista primaria
+         nueva sobre res.config.settings se apodera de TODA la app Ajustes,
+         porque pasa a ser la vista por defecto del modelo.
+    -->
     <record id="cda_api_settings_view_form" model="ir.ui.view">
-        <field name="name">cda.api.settings.form</field>
+        <field name="name">res.config.settings.view.form.inherit.cda.api</field>
         <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
         <field name="arch" type="xml">
-            <form string="API REST">
-                <sheet>
-                    <div class="alert alert-info" role="alert">
-                        Con <strong>Requerir API key</strong> desactivado, la API
-                        acepta llamadas sin <code>Authorization</code> y trabaja
-                        con el usuario de servicio. Activalo cuando salga a
-                        producción.
-                    </div>
-                    <group>
-                        <group string="Acceso" name="cda_api_access">
+            <xpath expr="//form" position="inside">
+                <app
+                    data-string="API REST"
+                    string="API REST"
+                    name="cda_api"
+                    logo="/cda_api/static/description/icon.png"
+                >
+                    <block title="Acceso" name="cda_api_access">
+                        <setting
+                            id="cda_api_require_auth"
+                            string="Requerir API key"
+                            help="Desactivado, la API acepta llamadas sin Authorization y trabaja con el usuario de servicio. Activalo al salir a producción."
+                        >
                             <field name="cda_api_require_auth" />
+                        </setting>
+                        <setting
+                            id="cda_api_service_user"
+                            string="Usuario de servicio"
+                            help="Usuario con el que corre la API cuando no se exige API key. Define el techo de permisos."
+                        >
                             <field name="cda_api_service_user_id" />
-                        </group>
-                        <group string="Documentación" name="cda_api_docs">
-                            <field name="cda_api_docs_path" />
-                        </group>
-                    </group>
-                    <div class="text-center mt-3">
-                        <button
-                            name="action_cda_open_docs"
-                            type="object"
-                            string="Ver documentación de la API"
-                            class="btn-primary"
-                            icon="fa-external-link"
-                        />
-                    </div>
-                </sheet>
-                <footer>
-                    <button string="Guardar" special="save" class="btn-primary" />
-                    <button
-                        string="Cancelar"
-                        special="cancel"
-                        class="btn-secondary"
-                    />
-                </footer>
-            </form>
+                        </setting>
+                    </block>
+                    <block title="Documentación" name="cda_api_docs">
+                        <setting
+                            id="cda_api_docs_path"
+                            string="Ruta de documentación"
+                            help="Por defecto /api/v1/docs"
+                        >
+                            <field
+                                name="cda_api_docs_path"
+                                placeholder="/api/v1/docs"
+                            />
+                        </setting>
+                        <setting
+                            id="cda_api_open_docs"
+                            string="Abrir documentación"
+                        >
+                            <button
+                                name="action_cda_open_docs"
+                                type="object"
+                                string="Ver documentación de la API"
+                                class="btn-link"
+                                icon="fa-external-link"
+                            />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
         </field>
     </record>
 
+    <!-- Acción sin view_id: si se abre, muestra el formulario de Ajustes
+         completo (donde ahora vive el bloque API REST), no una vista suelta. -->
     <record id="action_cda_api_config" model="ir.actions.act_window">
-        <field name="name">API REST</field>
+        <field name="name">Ajustes de la API</field>
         <field name="res_model">res.config.settings</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="cda_api_settings_view_form" />
         <field name="target">current</field>
         <field name="path">api-rest</field>
     </record>
@@ -68,12 +91,14 @@
         <field name="target">new</field>
     </record>
 
+    <!-- El menú deja de ser el formulario de configuración: pasa a ser un
+         contenedor con los accesos a la documentación. La configuración se
+         toca desde Ajustes, como el resto de Odoo. -->
     <menuitem
         id="menu_cda_api_root"
         name="API REST"
         sequence="17"
         web_icon="cda_api,static/description/icon.png"
-        action="action_cda_api_config"
         groups="base.group_system"
     />
     <menuitem

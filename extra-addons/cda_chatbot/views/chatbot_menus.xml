@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Menú raíz propio: la configuración del chatbot se usa seguido y
+         enterrarla en Reclamos > Configuración la volvía invisible.
+         Lleva acción para que al tocar el ícono de la app abra el árbol y no
+         caiga en el "Ajustes" por defecto (que es el de cda_api). -->
+    <menuitem
+        id="menu_cda_chatbot"
+        name="Chatbot"
+        sequence="70"
+        action="chatbot_node_action"
+        web_icon="cda_chatbot,static/description/icon.png"
+        groups="base.group_system"
+    />
+    <menuitem
+        id="menu_cda_chatbot_node"
+        name="Árbol del chatbot"
+        parent="menu_cda_chatbot"
+        action="chatbot_node_action"
+        sequence="10"
+    />
+    <menuitem
+        id="menu_cda_chatbot_publish"
+        name="Publicar"
+        parent="menu_cda_chatbot"
+        action="chatbot_publish_action"
+        sequence="20"
+    />
+    <menuitem
+        id="menu_cda_chatbot_publication"
+        name="Publicaciones"
+        parent="menu_cda_chatbot"
+        action="chatbot_publication_action"
+        sequence="30"
+    />
+</odoo>

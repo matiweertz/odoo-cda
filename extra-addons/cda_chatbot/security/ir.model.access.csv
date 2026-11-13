@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_cda_chatbot_node_user,cda.chatbot.node user,model_cda_chatbot_node,cda_claims.group_cda_claims_user,1,0,0,0
+access_cda_chatbot_node_admin,cda.chatbot.node admin,model_cda_chatbot_node,base.group_system,1,1,1,1
+access_cda_chatbot_publication_user,cda.chatbot.publication user,model_cda_chatbot_publication,cda_claims.group_cda_claims_user,1,0,0,0
+access_cda_chatbot_publication_admin,cda.chatbot.publication admin,model_cda_chatbot_publication,base.group_system,1,1,1,1
+access_cda_chatbot_publish_admin,cda.chatbot.publish admin,model_cda_chatbot_publish,base.group_system,1,1,1,1

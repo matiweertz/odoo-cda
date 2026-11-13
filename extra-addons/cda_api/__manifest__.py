@@ -1,6 +1,6 @@
 {
     "name": "CDA API REST",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "summary": "API REST de Caminos del Aconcagua sobre el ORM",
     "description": """
 Expone /api/v1 con autenticación Bearer usando las API keys nativas de

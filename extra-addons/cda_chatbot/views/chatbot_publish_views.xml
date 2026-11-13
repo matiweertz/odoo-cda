@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="chatbot_publish_view_form" model="ir.ui.view">
+        <field name="name">cda.chatbot.publish.form</field>
+        <field name="model">cda.chatbot.publish</field>
+        <field name="arch" type="xml">
+            <form string="Publicar árbol">
+                <p class="text-muted">
+                    Se compila el árbol activo y se guarda como una versión
+                    nueva. El sitio empieza a usar esta versión y las
+                    anteriores quedan guardadas, por si hay que volver.
+                </p>
+                <group>
+                    <field name="summary" readonly="1" />
+                    <field
+                        name="note"
+                        placeholder="Ej: agrego el estado de la RN 226"
+                    />
+                </group>
+                <footer>
+                    <button
+                        name="action_publish"
+                        type="object"
+                        string="Publicar"
+                        class="btn-primary"
+                    />
+                    <button
+                        special="cancel"
+                        string="Cancelar"
+                        class="btn-secondary"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="chatbot_publish_action" model="ir.actions.act_window">
+        <field name="name">Publicar árbol</field>
+        <field name="res_model">cda.chatbot.publish</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="path">chatbot-publicar</field>
+    </record>
+</odoo>

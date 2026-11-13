@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Pestaña de trazabilidad del chat en el reclamo. Solo aparece cuando el
+         reclamo vino del chatbot, así no ensucia los reclamos de otros medios. -->
+    <record id="claim_view_form_chat" model="ir.ui.view">
+        <field name="name">cda.claim.form.chat</field>
+        <field name="model">cda.claim</field>
+        <field name="inherit_id" ref="cda_claims.claim_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='claim_tracking']" position="after">
+                <page
+                    name="claim_chat"
+                    string="Chat"
+                    invisible="not chat_session"
+                >
+                    <group>
+                        <group>
+                            <field name="chat_node_id" />
+                            <field name="chat_session" />
+                        </group>
+                        <group>
+                            <field name="chat_origin" widget="url" />
+                        </group>
+                    </group>
+                    <separator string="Camino en el árbol" />
+                    <field name="chat_path" readonly="1" nolabel="1" />
+                    <separator string="Conversación" />
+                    <field name="chat_transcript" readonly="1" nolabel="1" />
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Filtro rápido por medio de entrada en la búsqueda de reclamos. -->
+    <record id="claim_view_search_chat" model="ir.ui.view">
+        <field name="name">cda.claim.search.chat</field>
+        <field name="model">cda.claim</field>
+        <field name="inherit_id" ref="cda_claims.claim_view_search" />
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='open']" position="before">
+                <filter
+                    name="chatbot"
+                    string="Desde el chatbot"
+                    domain="[('entry_code_id.code', '=', 'BOT')]"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>
