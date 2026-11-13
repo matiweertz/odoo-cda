@@ -65,6 +65,24 @@ class CdaClaim(models.Model):
         ondelete="restrict",
         index=True,
     )
+    tipo_accidente = fields.Selection(
+        [
+            ("vuelco", "Vuelco"),
+            ("animal", "Con animal"),
+            ("frontal", "Colisión frontal"),
+            ("salida_via", "Salida de vía"),
+            ("alcance", "Colisión por alcance"),
+            ("diagonal", "Colisión diagonal"),
+            ("otros", "Otros"),
+        ],
+        string="Tipo de accidente",
+        help="Aplica a los reclamos de Siniestros / Accidente.",
+    )
+    es_accidente = fields.Boolean(
+        compute="_compute_es_accidente",
+        store=True,
+        string="Es accidente",
+    )
     extra_kind = fields.Selection(
         [
             ("none", "Ninguno"),
@@ -187,6 +205,10 @@ class CdaClaim(models.Model):
         for claim in self:
             claim.detail_available = bool(claim.subtype_id.detail_ids)
 
+    @api.depends("subtype_id.code")
+    def _compute_es_accidente(self):
+        for claim in self:
+            claim.es_accidente = (claim.subtype_id.code or "") == "AC"
     @api.depends("detail_id")
     def _compute_extra_kind(self):
         for claim in self:

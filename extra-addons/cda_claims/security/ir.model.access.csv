@@ -17,3 +17,7 @@ access_cda_claim_subtype_user,cda.claim.subtype user,model_cda_claim_subtype,cda
 access_cda_claim_subtype_admin,cda.claim.subtype admin,model_cda_claim_subtype,base.group_system,1,1,1,1
 access_cda_claim_detail_user,cda.claim.detail user,model_cda_claim_detail,cda_claims.group_cda_claims_user,1,0,0,0
 access_cda_claim_detail_admin,cda.claim.detail admin,model_cda_claim_detail,base.group_system,1,1,1,1
+access_cda_siniestro_vehiculo_user,cda.claim.siniestro.vehiculo user,model_cda_claim_siniestro_vehiculo,cda_claims.group_cda_claims_user,1,1,1,1
+access_cda_siniestro_vehiculo_manager,cda.claim.siniestro.vehiculo manager,model_cda_claim_siniestro_vehiculo,cda_claims.group_cda_claims_manager,1,1,1,1
+access_cda_siniestro_herido_user,cda.claim.siniestro.herido user,model_cda_claim_siniestro_herido,cda_claims.group_cda_claims_user,1,1,1,1
+access_cda_siniestro_herido_manager,cda.claim.siniestro.herido manager,model_cda_claim_siniestro_herido,cda_claims.group_cda_claims_manager,1,1,1,1

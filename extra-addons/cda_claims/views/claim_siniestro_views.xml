@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--
+        Planilla de campo del ASV. Va como pestaña heredada y no como vista
+        primaria: una vista primaria nueva sobre cda.claim pasaría a ser la
+        vista por defecto del modelo (ir.ui.view ordena por create_date desc) y
+        reemplazaría el formulario principal del reclamo.
+    -->
+    <record id="claim_view_form_siniestro" model="ir.ui.view">
+        <field name="name">cda.claim.form.siniestro</field>
+        <field name="model">cda.claim</field>
+        <field name="inherit_id" ref="cda_claims.claim_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page
+                    string="Siniestro (ASV)"
+                    name="claim_siniestro"
+                    invisible="not es_siniestro"
+                >
+                    <field name="es_siniestro" invisible="1" />
+
+                    <group string="1. El hecho" name="sin_hecho">
+                        <group name="sin_hecho_a">
+                            <field name="sin_fecha" />
+                            <field name="sin_hora" placeholder="HH:MM" />
+                            <field name="sin_ruta" />
+                            <field name="sin_sentido" />
+                            <field name="sin_km" />
+                            <field name="sin_gps" />
+                            <field name="sin_donde" />
+                            <field
+                                name="sin_donde_otro"
+                                invisible="sin_donde != 'otro'"
+                            />
+                        </group>
+                        <group name="sin_hecho_b">
+                            <field name="sin_llegada" />
+                            <field
+                                name="sin_movidos_por"
+                                invisible="sin_llegada != 'movidos'"
+                            />
+                            <field name="sin_calzada_estado" />
+                            <field name="sin_luz" />
+                            <field name="sin_clima" />
+                            <field name="sin_senalizacion" />
+                            <field name="sin_obra" />
+                        </group>
+                    </group>
+
+                    <group name="sin_hecho_textos">
+                        <field name="sin_que_se_ve" />
+                        <field name="sin_relato_tercero" />
+                    </group>
+
+                    <group string="Qué hay en la calzada" name="sin_calzada">
+                        <group name="sin_calzada_a">
+                            <field name="sin_calzada" />
+                            <field
+                                name="sin_calzada_detalle"
+                                invisible="sin_calzada not in ('objeto', 'otro', 'marca')"
+                            />
+                        </group>
+                        <group name="sin_calzada_b">
+                            <field
+                                name="sin_animal_cantidad"
+                                invisible="sin_calzada != 'animal'"
+                            />
+                            <field
+                                name="sin_animal_estado"
+                                invisible="sin_calzada != 'animal'"
+                            />
+                        </group>
+                    </group>
+
+                    <group string="Evento natural" name="sin_evento">
+                        <field name="sin_evento_hora" placeholder="HH:MM" />
+                        <field name="sin_evento_alertas" />
+                    </group>
+
+                    <group
+                        string="2. Personas y vehículos (si hay terceros)"
+                        name="sin_personas"
+                    >
+                        <group name="sin_conductor">
+                            <field name="sin_conductor_nombre" />
+                            <field name="sin_conductor_domicilio" />
+                            <field name="sin_conductor_telefono" />
+                            <field name="sin_foto_ci" />
+                            <field name="sin_foto_licencia" />
+                        </group>
+                        <group name="sin_vehiculo">
+                            <field name="sin_dominio" />
+                            <field name="sin_marca_modelo" />
+                            <field name="sin_color" />
+                            <field name="sin_vehiculo_tipo" />
+                        </group>
+                        <group name="sin_seguro">
+                            <field name="sin_titular" />
+                            <field name="sin_aseguradora" />
+                            <field name="sin_poliza" />
+                            <field name="sin_foto_poliza" />
+                        </group>
+                        <group name="sin_camion">
+                            <field name="sin_transportista" />
+                            <field name="sin_carga" />
+                            <field name="sin_carga_peligrosa" />
+                        </group>
+                    </group>
+
+                    <group name="sin_personas_resumen">
+                        <group name="sin_resumen_a">
+                            <field name="sin_ocupantes" />
+                            <field name="sin_cant_vehiculos" />
+                            <field name="sin_uso_anexo" />
+                        </group>
+                        <group name="sin_resumen_b">
+                            <field name="sin_personal_propio_herido" />
+                            <field
+                                name="sin_personal_propio_nombre"
+                                invisible="not sin_personal_propio_herido"
+                            />
+                        </group>
+                    </group>
+
+                    <field name="sin_vehiculo_ids">
+                        <list string="Vehículos de terceros" editable="bottom">
+                            <field name="sequence" widget="handle" />
+                            <field name="dominio" />
+                            <field name="marca_modelo" />
+                            <field name="color" />
+                            <field name="tipo" />
+                            <field name="nombre_conductor" optional="show" />
+                            <field name="telefono" optional="show" />
+                            <field name="titular" optional="hide" />
+                            <field name="aseguradora" optional="show" />
+                            <field name="poliza" optional="hide" />
+                            <field name="transportista" optional="hide" />
+                            <field name="carga" optional="hide" />
+                            <field name="carga_peligrosa" optional="hide" />
+                            <field name="domicilio" optional="hide" />
+                            <field name="foto_ci" optional="hide" />
+                            <field name="foto_licencia" optional="hide" />
+                            <field name="foto_poliza" optional="hide" />
+                        </list>
+                    </field>
+
+                    <field name="sin_herido_ids">
+                        <list string="Heridos" editable="bottom">
+                            <field name="sequence" widget="handle" />
+                            <field name="nombre" />
+                            <field name="gravedad" />
+                            <field name="trasladado_a" />
+                            <field name="rechazo_asistencia" />
+                            <field name="es_personal_propio" />
+                        </list>
+                    </field>
+
+                    <group string="3. Bien dañado" name="sin_bien">
+                        <group name="sin_bien_a">
+                            <field name="sin_bien" />
+                            <field
+                                name="sin_bien_otro"
+                                invisible="sin_bien != 'otro'"
+                            />
+                            <field
+                                name="sin_bien_movil"
+                                invisible="sin_bien != 'movil'"
+                            />
+                            <field name="sin_bien_km" />
+                            <field name="sin_bien_cantidad" />
+                        </group>
+                        <group name="sin_bien_b">
+                            <field name="sin_bien_marcas" />
+                            <field name="sin_bien_riesgo" />
+                            <field name="sin_bien_medida" />
+                        </group>
+                    </group>
+
+                    <group string="4. Quién intervino y cuándo" name="sin_intervino">
+                        <group name="sin_autoridades">
+                            <field name="sin_policia" />
+                            <field name="sin_gendarmeria" />
+                            <field name="sin_dependencia" />
+                            <field name="sin_acta" />
+                            <field name="sin_alcoholemia" />
+                            <field
+                                name="sin_alcoholemia_resultado"
+                                invisible="sin_alcoholemia != 'si'"
+                            />
+                            <field name="sin_ambulancia" />
+                            <field name="sin_bomberos" />
+                            <field name="sin_prensa" />
+                            <field name="sin_abogado" />
+                        </group>
+                        <group name="sin_horas">
+                            <field name="sin_hora_novedad" placeholder="HH:MM" />
+                            <field name="sin_hora_grua" placeholder="HH:MM" />
+                            <field name="sin_hora_fin" placeholder="HH:MM" />
+                            <field name="sin_cronologia" />
+                        </group>
+                    </group>
+
+                    <group string="5. Evidencia y cierre" name="sin_cierre">
+                        <group name="sin_evidencia">
+                            <field name="sin_fotos_cantidad" />
+                            <field name="sin_originales" />
+                            <field
+                                name="sin_originales_hora"
+                                invisible="not sin_originales"
+                            />
+                            <field name="sin_parte_diario" />
+                            <field name="sin_camaras" />
+                        </group>
+                        <group name="sin_cierre_b">
+                            <field name="sin_testigos" />
+                            <field name="sin_firma_asv" />
+                            <field name="sin_hora_cierre" placeholder="HH:MM" />
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -160,7 +160,12 @@
             <field name="extra">crane</field>
             <field name="sequence">50</field>
         </record>
-        <record id="detail_incidentes_otros" model="cda.claim.detail">
+                <record id="detail_despeje_calzada" model="cda.claim.detail">
+            <field name="subtype_id" ref="subtype_incidentes" />
+            <field name="code">DL</field>
+            <field name="name">Despeje de calzada</field>
+            <field name="sequence">55</field>
+        </record>        <record id="detail_incidentes_otros" model="cda.claim.detail">
             <field name="subtype_id" ref="subtype_incidentes" />
             <field name="code">OT</field>
             <field name="name">Otros</field>

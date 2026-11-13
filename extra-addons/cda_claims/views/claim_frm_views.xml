@@ -53,7 +53,18 @@
                             <field name="den_signage" />
                             <field name="den_occupants" />
                             <field name="den_injured" />
-                            <field name="den_injury_detail" />
+                            <field
+                                name="den_injury_severity"
+                                invisible="den_injured == 'no_injured'"
+                            />
+                            <field
+                                name="den_injury_count"
+                                invisible="den_injured == 'no_injured'"
+                            />
+                            <field
+                                name="den_injury_detail"
+                                invisible="den_injured == 'no_injured'"
+                            />
                         </group>
                     </group>
                     <group>
