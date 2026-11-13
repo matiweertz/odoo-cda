@@ -17,6 +17,8 @@ FRM_PREFIX = "frm_"
 CLAIM_MODEL = "cda.claim"
 CLAIM_TYPE_MODEL = "cda.claim.type"
 ENTRY_CODE_MODEL = "cda.claim.entry.code"
+SUBTYPE_MODEL = "cda.claim.subtype"
+DETAIL_MODEL = "cda.claim.detail"
 STAGE_MODEL = "cda.claim.stage"
 VEHICLE_FIELDS = (
     "id",
@@ -41,6 +43,8 @@ WITNESS_FIELDS = ("id", "name", "phone", "own_staff")
 CREATE_FIELDS = frozenset(
     {
         "claim_type",
+        "subtype",
+        "detail",
         "description",
         "entry_code",
         "subject",
@@ -188,6 +192,15 @@ class CdaClaimApi(models.AbstractModel):
             "description": description,
             "user_id": self._user_id(payload.get("user_id")),
         }
+        subtype = self._text(payload.get("subtype"))
+        detail = self._text(payload.get("detail"))
+        if subtype:
+            subtype_id = self._resolve_subtype(vals["claim_type_id"], subtype)
+            vals["subtype_id"] = subtype_id
+            if detail:
+                vals["detail_id"] = self._resolve_detail(subtype_id, detail)
+        elif detail:
+            raise ClaimApiError("detail requiere subtype.")
         subject = self._text(payload.get("subject"))
         if subject:
             vals["name"] = subject
@@ -467,6 +480,21 @@ class CdaClaimApi(models.AbstractModel):
         record = self.env[ENTRY_CODE_MODEL].search([("code", "=", value)], limit=1)
         if not record:
             raise ClaimApiError(f"Medio de entrada inexistente: {value}.")
+        return record.id
+    def _resolve_subtype(self, type_id: int, value: str) -> int:
+        record = self.env[SUBTYPE_MODEL].search(
+            [("code", "=", value), ("type_id", "=", type_id)], limit=1
+        )
+        if not record:
+            raise ClaimApiError(f"Subtipo inexistente: {value}.")
+        return record.id
+
+    def _resolve_detail(self, subtype_id: int, value: str) -> int:
+        record = self.env[DETAIL_MODEL].search(
+            [("code", "=", value), ("subtype_id", "=", subtype_id)], limit=1
+        )
+        if not record:
+            raise ClaimApiError(f"Detalle inexistente: {value}.")
         return record.id
 
     def _claim(self, claim_id: int) -> Any:
