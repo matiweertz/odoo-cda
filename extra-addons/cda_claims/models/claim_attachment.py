@@ -4,7 +4,7 @@ from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 MAX_FILE_SIZE = 10 * 1024 * 1024
-ALLOWED_MIME_PREFIXES = ("image/", "video/", "audio/", "text/")
+ALLOWED_MIME_PREFIXES = ("image/", "video/", "audio/", "text/", "application/pdf")
 
 ATTACHMENT_KINDS = [
     ("image", "Imagen"),

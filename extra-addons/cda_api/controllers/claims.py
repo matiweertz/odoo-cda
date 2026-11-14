@@ -108,6 +108,19 @@ class CdaApiClaims(http.Controller):
         return request.make_response(data, headers=headers)
 
     @http.route(
+        f"{API}/claims/<int:claim_id>/attachments",
+        type="json2",
+        auth="public",
+        methods=["POST"],
+    )
+    def claims_attachment_create(self, claim_id, **payload):
+        api_user()
+        try:
+            result = request.env["cda.claim.api"].add_attachment(claim_id, payload)
+        except ClaimApiError as exc:
+            return _error(exc)
+        return request.make_json_response(result, status=201)
+    @http.route(
         f"{API}/claim-types",
         type="http",
         auth="public",

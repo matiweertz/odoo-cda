@@ -13,7 +13,7 @@ _logger = logging.getLogger(__name__)
 SCALAR_TYPES = frozenset(
     {"char", "text", "integer", "float", "boolean", "date", "datetime", "selection", "monetary"}
 )
-FRM_PREFIX = "frm_"
+FRM_PREFIX = "den_"
 CLAIM_MODEL = "cda.claim"
 CLAIM_TYPE_MODEL = "cda.claim.type"
 ENTRY_CODE_MODEL = "cda.claim.entry.code"
@@ -318,6 +318,37 @@ class CdaClaimApi(models.AbstractModel):
             return f"/api/v1/claims/attachments/{attachment.id}"
         return None
 
+    def add_attachment(self, claim_id: int, payload: dict[str, Any]) -> dict[str, Any]:
+        """Adjunta un archivo al reclamo.
+
+        El cuerpo lleva file_name y data en base64 (se acepta con o sin el
+        prefijo data:...;base64,). El tamaño y el tipo los valida el modelo.
+        """
+        claim = self._claim(claim_id)
+        file_name = self._text(payload.get("file_name"))
+        data = payload.get("data")
+        if not file_name:
+            raise ClaimApiError("file_name es obligatorio.")
+        if not data:
+            raise ClaimApiError("data (base64) es obligatorio.")
+        if isinstance(data, str) and data.startswith("data:"):
+            data = data.split(",", 1)[-1]
+        attachment = self.env["cda.claim.attachment"].create(
+            {
+                "claim_id": claim.id,
+                "file_name": file_name,
+                "name": self._text(payload.get("name")) or file_name,
+                "file": data,
+            }
+        )
+        return {
+            "id": attachment.id,
+            "name": attachment.name,
+            "file_name": attachment.file_name,
+            "file_size": attachment.file_size,
+            "kind": attachment.kind,
+            "view_url": f"/api/v1/claims/attachments/{attachment.id}",
+        }
     def attachment_content(self, attachment_id: int) -> tuple[bytes, str, str]:
         attachment = self.env["cda.claim.attachment"].browse(attachment_id)
         if not attachment.exists():
