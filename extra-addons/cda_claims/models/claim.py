@@ -65,6 +65,11 @@ class CdaClaim(models.Model):
         ondelete="restrict",
         index=True,
     )
+    web_form_url = fields.Char(
+        string="Link del formulario web",
+        compute="_compute_web_form_url",
+        help="Enlace a la planilla pública de denuncia para este reclamo.",
+    )
     tipo_lesion = fields.Selection(
         [
             ("grave", "Grave"),
@@ -224,6 +229,17 @@ class CdaClaim(models.Model):
     def _compute_hay_lesionados(self):
         for claim in self:
             claim.hay_lesionados = (claim.detail_id.code or "") in ("CL", "AM")
+    @api.depends()
+    def _compute_web_form_url(self):
+        base = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("cda_claims.web_form_base")
+            or "https://www.caminosdelaconcagua.com.ar"
+        ).rstrip("/")
+        for claim in self:
+            registro = claim._origin.id
+            claim.web_form_url = f"{base}/reclamo/{registro}" if registro else False
     @api.depends("subtype_id.code")
     def _compute_es_accidente(self):
         for claim in self:
