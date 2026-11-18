@@ -245,10 +245,21 @@ class CdaClaim(models.Model):
         self.ensure_one()
         if not self.email:
             return False
+
+        parametros = self.env["ir.config_parameter"].sudo()
+        # Interruptor. El servidor de correo de producción está configurado pero
+        # la conexión SMTP no responde: Odoo espera 60 s (SMTP_TIMEOUT) y eso
+        # corta el alta del reclamo. Mientras eso no se arregle, el aviso lo
+        # manda el sitio. Para que lo mande Odoo, poner este parámetro en True.
+        interruptor = (
+            parametros.get_param("cda_claims.email_from_odoo") or ""
+        ).strip().lower()
+        if interruptor not in ("1", "true", "yes", "t"):
+            return False
+
         if not self.env["ir.mail_server"].sudo().search_count([]):
             return False
 
-        parametros = self.env["ir.config_parameter"].sudo()
         base = (
             parametros.get_param("cda_claims.web_form_base")
             or "https://www.caminosdelaconcagua.com.ar"
