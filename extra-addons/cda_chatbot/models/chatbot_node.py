@@ -380,12 +380,14 @@ class CdaChatbotNode(models.Model):
             }
         )
         claim.message_post(body="Reclamo creado desde el chatbot.")
-        return self._claim_response(claim)
+        return self._claim_response(claim, notificado=claim._send_claimant_email())
 
-    def _claim_response(self, claim, created=True):
+    def _claim_response(self, claim, created=True, notificado=False):
         return {
             "id": claim.id,
             "number": claim.number,
             "stage": claim.stage_id.name,
             "created": created,
+            # True si Odoo mandó el aviso; si es False, lo manda el sitio.
+            "notificado": bool(notificado),
         }

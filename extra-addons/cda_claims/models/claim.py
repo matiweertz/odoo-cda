@@ -1,5 +1,11 @@
+import logging
+
+from markupsafe import escape
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class CdaClaim(models.Model):
@@ -229,6 +235,88 @@ class CdaClaim(models.Model):
     def _compute_hay_lesionados(self):
         for claim in self:
             claim.hay_lesionados = (claim.detail_id.code or "") in ("CL", "AM")
+    def _send_claimant_email(self):
+        """Avisa al vecino que su reclamo existe y le deja el link al formulario.
+
+        Devuelve True solo si Odoo se hizo cargo del envío. Si no hay servidor de
+        correo saliente configurado, o el reclamo no tiene email, devuelve False
+        para que el sitio lo mande: así nunca se pierde el aviso.
+        """
+        self.ensure_one()
+        if not self.email:
+            return False
+        if not self.env["ir.mail_server"].sudo().search_count([]):
+            return False
+
+        parametros = self.env["ir.config_parameter"].sudo()
+        base = (
+            parametros.get_param("cda_claims.web_form_base")
+            or "https://www.caminosdelaconcagua.com.ar"
+        ).rstrip("/")
+        remitente = (
+            parametros.get_param("cda_claims.email_from")
+            or "atencionalusuario@caminosdelaconcagua.com.ar"
+        )
+        enlace = f"{base}/reclamo/{self.id}"
+        nombre = (self.den_nombre or "").strip()
+        saludo = f"Hola {nombre}:" if nombre else "Hola:"
+        numero = self.number or f"#{self.id}"
+
+        # mail.mail no tiene una alternativa de texto limpia: el campo body se
+        # guarda como HTML. Se manda solo el cuerpo con diseño.
+        html = (
+            '<div style="font-family:Arial,Helvetica,sans-serif;color:#273F4F;max-width:560px">'
+            f'<p style="font-size:15px;margin:0 0 14px">{escape(saludo)}</p>'
+            '<p style="font-size:15px;line-height:1.6;margin:0 0 14px">'
+            f"Registramos tu reclamo con el número "
+            f'<strong style="font-size:17px;letter-spacing:.03em">{escape(numero)}</strong>.'
+            "</p>"
+            '<p style="font-size:15px;line-height:1.6;margin:0 0 18px">'
+            "Podés terminar de completar la denuncia con los datos del hecho, los daños "
+            "y las fotos en el siguiente enlace:"
+            "</p>"
+            '<p style="margin:0 0 18px">'
+            f'<a href="{escape(enlace)}" style="background:#273F4F;color:#FFFFFF;'
+            "text-decoration:none;padding:12px 20px;border-radius:8px;font-size:15px;"
+            'font-weight:600;display:inline-block">Completar la denuncia</a>'
+            "</p>"
+            '<p style="font-size:13px;color:#537188;line-height:1.6;margin:0 0 6px">'
+            f"Si el botón no funciona, copiá este enlace: {escape(enlace)}"
+            "</p>"
+            '<p style="font-size:13px;color:#537188;line-height:1.6;margin:0">'
+            "Si preferís, respondé este correo o comunicate al 0-800-999-5555."
+            "</p>"
+            "</div>"
+        )
+
+        correo = (
+            self.env["mail.mail"]
+            .sudo()
+            .create(
+                {
+                    "subject": f"Reclamo {numero} — Caminos del Aconcagua",
+                    "email_to": self.email,
+                    "email_from": f"Caminos del Aconcagua <{remitente}>",
+                    "body_html": html,
+                    "model": self._name,
+                    "res_id": self.id,
+                    "auto_delete": True,
+                }
+            )
+        )
+        try:
+            correo.send()
+        except Exception:  # noqa: BLE001 - si falla, el sitio manda el suyo
+            _logger.exception("No se pudo enviar el aviso del reclamo %s", numero)
+            return False
+        # mail.send() no levanta excepción: deja el correo en estado 'exception'.
+        if correo.state == "exception":
+            _logger.warning(
+                "El servidor de correo rechazó el aviso del reclamo %s", numero
+            )
+            return False
+        return True
+
     @api.depends()
     def _compute_web_form_url(self):
         base = (

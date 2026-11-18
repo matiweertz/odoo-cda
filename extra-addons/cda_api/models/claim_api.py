@@ -154,7 +154,8 @@ class CdaClaimApi(models.AbstractModel):
                 "El reclamo viola una restricción de unicidad.", 409, "conflict"
             ) from None
         claim.message_post(body=self._created_note(origin), subtype_xmlid="mail.mt_note")
-        return self._created(claim, created=True)
+        notificado = claim._send_claimant_email()
+        return self._created(claim, created=True, notificado=notificado)
 
     def update_claim(
         self, claim_id: int, payload: dict[str, Any], origin: str | None = None
@@ -594,5 +595,13 @@ class CdaClaimApi(models.AbstractModel):
         if unknown:
             raise ClaimApiError(f"Campos desconocidos: {', '.join(unknown)}.")
 
-    def _created(self, claim: Any, created: bool) -> dict[str, Any]:
-        return {"id": claim.id, "number": claim.number or None, "created": created}
+    def _created(
+        self, claim: Any, created: bool, notificado: bool = False
+    ) -> dict[str, Any]:
+        return {
+            "id": claim.id,
+            "number": claim.number or None,
+            "created": created,
+            # True si Odoo mandó el aviso al vecino; si es False, lo manda el sitio.
+            "notificado": bool(notificado),
+        }

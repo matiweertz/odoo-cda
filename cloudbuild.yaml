@@ -68,7 +68,7 @@ steps:
       - |
         gcloud compute ssh odoo-srv --zone=${_ZONE} --tunnel-through-iap --command="
           sleep 20;
-          sudo docker exec -u odoo odoo-container odoo -c /etc/odoo/odoo.conf -d ${_DB_NAME} -u cda_claims,cda_api --stop-after-init --no-http --workers=0;
+          sudo docker exec -u odoo odoo-container odoo -c /etc/odoo/odoo.conf -d ${_DB_NAME} -u cda_claims,cda_api,cda_chatbot --stop-after-init --no-http --workers=0;
           sudo docker restart odoo-container
         "
 
