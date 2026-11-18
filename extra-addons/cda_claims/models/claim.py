@@ -236,8 +236,14 @@ class CdaClaim(models.Model):
         for claim in self:
             claim.hay_lesionados = (claim.detail_id.code or "") in ("CL", "AM")
     def _claimant_link(self):
-        """Enlace al formulario largo, solo para estado de ruta y daños."""
+        """Enlace al formulario largo.
+
+        Solo aplica a Reclamos con subtipo Estado de ruta (ER) o Daños (DA): son
+        los únicos que se completan con la planilla larga.
+        """
         self.ensure_one()
+        if (self.claim_type_id.code or "") != "REC":
+            return False
         if (self.subtype_id.code or "") not in ("ER", "DA"):
             return False
         base = (
@@ -246,7 +252,9 @@ class CdaClaim(models.Model):
             .get_param("cda_claims.web_form_base")
             or "https://www.caminosdelaconcagua.com.ar"
         ).rstrip("/")
-        return f"{base}/reclamo/{self.id}"
+        # En un reclamo sin guardar todavía no hay id: no hay link.
+        registro = self._origin.id
+        return f"{base}/reclamo/{registro}" if registro else False
 
     def _claimant_email_html(self, saludo, numero, enlace=None):
         partes = [
@@ -295,31 +303,19 @@ class CdaClaim(models.Model):
         nombre = (self.den_nombre or "").strip()
         return f"Hola {nombre}:" if nombre else "Hola:"
 
-    def _send_claimant_email(self, force=False):
-        """Avisa al vecino que su reclamo existe.
+    def _send_claimant_email(self):
+        """Encola el aviso al vecino con el número de su reclamo.
 
-        Devuelve True solo si Odoo se hizo cargo del envío. Si no hay servidor de
-        correo, o el reclamo no tiene email, devuelve False para que el sitio lo
-        mande: así nunca se pierde el aviso.
+        No envía en el momento a propósito: si el SMTP está lento, Odoo espera
+        60 s y eso corta el alta del reclamo. Se deja en la cola de correo y la
+        manda el cron "Email Queue Manager" (Ajustes → Técnico → Acciones
+        planificadas, para bajarle el intervalo).
 
-        Con force=True se ignora el interruptor: lo usa el botón de reenvío, que
-        es una acción explícita de una persona.
+        Devuelve True si quedó encolado.
         """
         self.ensure_one()
         if not self.email:
             return False
-
-        parametros = self.env["ir.config_parameter"].sudo()
-        if not force:
-            # El servidor de producción está configurado pero la conexión SMTP no
-            # responde: Odoo espera 60 s y eso corta el alta. Mientras no se
-            # arregle, el aviso lo manda el sitio.
-            interruptor = (
-                parametros.get_param("cda_claims.email_from_odoo") or ""
-            ).strip().lower()
-            if interruptor not in ("1", "true", "yes", "t"):
-                return False
-
         if not self._mail_servidor_listo():
             return False
 
@@ -327,33 +323,21 @@ class CdaClaim(models.Model):
         html = self._claimant_email_html(
             self._saludo_denunciante(), numero, self._claimant_link()
         )
-        correo = (
-            self.env["mail.mail"]
-            .sudo()
-            .create(
-                {
-                    "subject": f"Reclamo {numero} — Caminos del Aconcagua",
-                    "email_to": self.email,
-                    "email_from": f"Caminos del Aconcagua <{self._remitente_avisos()}>",
-                    "body_html": html,
-                    "model": self._name,
-                    "res_id": self.id,
-                    "auto_delete": True,
-                }
-            )
+        self.env["mail.mail"].sudo().create(
+            {
+                "subject": f"Reclamo {numero} — Caminos del Aconcagua",
+                "email_to": self.email,
+                "email_from": f"Caminos del Aconcagua <{self._remitente_avisos()}>",
+                "body_html": html,
+                "model": self._name,
+                "res_id": self.id,
+                "auto_delete": True,
+            }
         )
-        try:
-            correo.send()
-        except Exception:  # noqa: BLE001 - si falla, el sitio manda el suyo
-            _logger.exception("No se pudo enviar el aviso del reclamo %s", numero)
-            return False
-        if correo.state == "exception":
-            _logger.warning(
-                "El servidor de correo rechazó el aviso del reclamo %s", numero
-            )
-            return False
+        self.message_post(
+            body=f"Aviso al vecino encolado para {self.email} (lo manda la cola de correo)."
+        )
         return True
-
     def action_resend_claimant_email(self):
         """Botón de Seguimiento: reenvía el aviso al vecino."""
         self.ensure_one()
@@ -365,18 +349,19 @@ class CdaClaim(models.Model):
             raise UserError(
                 "No hay ningún servidor de correo saliente configurado en Odoo."
             )
-        enviado = self._send_claimant_email(force=True)
+        encolado = self._send_claimant_email()
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
-                "type": "success" if enviado else "warning",
-                "title": "Aviso reenviado" if enviado else "No se pudo enviar",
+                "type": "success" if encolado else "warning",
+                "title": "Aviso en cola" if encolado else "No se pudo encolar",
                 "message": (
-                    f"Se reenvió el aviso a {self.email}."
-                    if enviado
-                    else "El servidor de correo rechazó el envío. Revisá la "
-                    "configuración en Ajustes → Servidores de correo saliente."
+                    f"El aviso a {self.email} quedó en la cola de correo y sale en "
+                    "los próximos minutos."
+                    if encolado
+                    else "No se pudo preparar el aviso. Revisá la configuración en "
+                    "Ajustes → Servidores de correo saliente."
                 ),
                 "sticky": False,
             },
@@ -422,17 +407,12 @@ class CdaClaim(models.Model):
             body=f"Se avisó al vecino el cambio de número: {anterior or '-'} → {nuevo}"
         )
 
-    @api.depends()
+    @api.depends("claim_type_id", "subtype_id")
     def _compute_web_form_url(self):
-        base = (
-            self.env["ir.config_parameter"]
-            .sudo()
-            .get_param("cda_claims.web_form_base")
-            or "https://www.caminosdelaconcagua.com.ar"
-        ).rstrip("/")
         for claim in self:
-            registro = claim._origin.id
-            claim.web_form_url = f"{base}/reclamo/{registro}" if registro else False
+            # Misma regla que el correo: solo Reclamos de Daños o Estado de ruta.
+            claim.web_form_url = claim._claimant_link() or False
+
     @api.depends("subtype_id.code")
     def _compute_es_accidente(self):
         for claim in self:
