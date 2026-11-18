@@ -3,7 +3,7 @@ import logging
 from markupsafe import escape
 
 from odoo import api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -235,71 +235,98 @@ class CdaClaim(models.Model):
     def _compute_hay_lesionados(self):
         for claim in self:
             claim.hay_lesionados = (claim.detail_id.code or "") in ("CL", "AM")
-    def _send_claimant_email(self):
-        """Avisa al vecino que su reclamo existe y le deja el link al formulario.
+    def _claimant_link(self):
+        """Enlace al formulario largo, solo para estado de ruta y daños."""
+        self.ensure_one()
+        if (self.subtype_id.code or "") not in ("ER", "DA"):
+            return False
+        base = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("cda_claims.web_form_base")
+            or "https://www.caminosdelaconcagua.com.ar"
+        ).rstrip("/")
+        return f"{base}/reclamo/{self.id}"
+
+    def _claimant_email_html(self, saludo, numero, enlace=None):
+        partes = [
+            '<div style="font-family:Arial,Helvetica,sans-serif;color:#273F4F;max-width:560px">',
+            f'<p style="font-size:15px;margin:0 0 14px">{escape(saludo)}</p>',
+            '<p style="font-size:15px;line-height:1.6;margin:0 0 14px">'
+            "Registramos tu reclamo con el número "
+            f'<strong style="font-size:17px;letter-spacing:.03em">{escape(numero)}</strong>.'
+            "</p>",
+        ]
+        if enlace:
+            partes += [
+                '<p style="font-size:15px;line-height:1.6;margin:0 0 18px">'
+                "Podés terminar de completar la denuncia con los datos del hecho, los "
+                "daños y las fotos en el siguiente enlace:"
+                "</p>",
+                '<p style="margin:0 0 18px">'
+                f'<a href="{escape(enlace)}" style="background:#273F4F;color:#FFFFFF;'
+                "text-decoration:none;padding:12px 20px;border-radius:8px;font-size:15px;"
+                'font-weight:600;display:inline-block">Completar la denuncia</a>'
+                "</p>",
+                '<p style="font-size:13px;color:#537188;line-height:1.6;margin:0 0 6px">'
+                f"Si el botón no funciona, copiá este enlace: {escape(enlace)}"
+                "</p>",
+            ]
+        partes += [
+            '<p style="font-size:13px;color:#537188;line-height:1.6;margin:0">'
+            "Si preferís, respondé este correo o comunicate al 0-800-999-5555."
+            "</p>",
+            "</div>",
+        ]
+        return "".join(partes)
+
+    def _mail_servidor_listo(self):
+        return bool(self.env["ir.mail_server"].sudo().search_count([]))
+
+    def _remitente_avisos(self):
+        return (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("cda_claims.email_from")
+            or "atencionalusuario@caminosdelaconcagua.com.ar"
+        )
+
+    def _saludo_denunciante(self):
+        nombre = (self.den_nombre or "").strip()
+        return f"Hola {nombre}:" if nombre else "Hola:"
+
+    def _send_claimant_email(self, force=False):
+        """Avisa al vecino que su reclamo existe.
 
         Devuelve True solo si Odoo se hizo cargo del envío. Si no hay servidor de
-        correo saliente configurado, o el reclamo no tiene email, devuelve False
-        para que el sitio lo mande: así nunca se pierde el aviso.
+        correo, o el reclamo no tiene email, devuelve False para que el sitio lo
+        mande: así nunca se pierde el aviso.
+
+        Con force=True se ignora el interruptor: lo usa el botón de reenvío, que
+        es una acción explícita de una persona.
         """
         self.ensure_one()
         if not self.email:
             return False
 
         parametros = self.env["ir.config_parameter"].sudo()
-        # Interruptor. El servidor de correo de producción está configurado pero
-        # la conexión SMTP no responde: Odoo espera 60 s (SMTP_TIMEOUT) y eso
-        # corta el alta del reclamo. Mientras eso no se arregle, el aviso lo
-        # manda el sitio. Para que lo mande Odoo, poner este parámetro en True.
-        interruptor = (
-            parametros.get_param("cda_claims.email_from_odoo") or ""
-        ).strip().lower()
-        if interruptor not in ("1", "true", "yes", "t"):
+        if not force:
+            # El servidor de producción está configurado pero la conexión SMTP no
+            # responde: Odoo espera 60 s y eso corta el alta. Mientras no se
+            # arregle, el aviso lo manda el sitio.
+            interruptor = (
+                parametros.get_param("cda_claims.email_from_odoo") or ""
+            ).strip().lower()
+            if interruptor not in ("1", "true", "yes", "t"):
+                return False
+
+        if not self._mail_servidor_listo():
             return False
 
-        if not self.env["ir.mail_server"].sudo().search_count([]):
-            return False
-
-        base = (
-            parametros.get_param("cda_claims.web_form_base")
-            or "https://www.caminosdelaconcagua.com.ar"
-        ).rstrip("/")
-        remitente = (
-            parametros.get_param("cda_claims.email_from")
-            or "atencionalusuario@caminosdelaconcagua.com.ar"
-        )
-        enlace = f"{base}/reclamo/{self.id}"
-        nombre = (self.den_nombre or "").strip()
-        saludo = f"Hola {nombre}:" if nombre else "Hola:"
         numero = self.number or f"#{self.id}"
-
-        # mail.mail no tiene una alternativa de texto limpia: el campo body se
-        # guarda como HTML. Se manda solo el cuerpo con diseño.
-        html = (
-            '<div style="font-family:Arial,Helvetica,sans-serif;color:#273F4F;max-width:560px">'
-            f'<p style="font-size:15px;margin:0 0 14px">{escape(saludo)}</p>'
-            '<p style="font-size:15px;line-height:1.6;margin:0 0 14px">'
-            f"Registramos tu reclamo con el número "
-            f'<strong style="font-size:17px;letter-spacing:.03em">{escape(numero)}</strong>.'
-            "</p>"
-            '<p style="font-size:15px;line-height:1.6;margin:0 0 18px">'
-            "Podés terminar de completar la denuncia con los datos del hecho, los daños "
-            "y las fotos en el siguiente enlace:"
-            "</p>"
-            '<p style="margin:0 0 18px">'
-            f'<a href="{escape(enlace)}" style="background:#273F4F;color:#FFFFFF;'
-            "text-decoration:none;padding:12px 20px;border-radius:8px;font-size:15px;"
-            'font-weight:600;display:inline-block">Completar la denuncia</a>'
-            "</p>"
-            '<p style="font-size:13px;color:#537188;line-height:1.6;margin:0 0 6px">'
-            f"Si el botón no funciona, copiá este enlace: {escape(enlace)}"
-            "</p>"
-            '<p style="font-size:13px;color:#537188;line-height:1.6;margin:0">'
-            "Si preferís, respondé este correo o comunicate al 0-800-999-5555."
-            "</p>"
-            "</div>"
+        html = self._claimant_email_html(
+            self._saludo_denunciante(), numero, self._claimant_link()
         )
-
         correo = (
             self.env["mail.mail"]
             .sudo()
@@ -307,7 +334,7 @@ class CdaClaim(models.Model):
                 {
                     "subject": f"Reclamo {numero} — Caminos del Aconcagua",
                     "email_to": self.email,
-                    "email_from": f"Caminos del Aconcagua <{remitente}>",
+                    "email_from": f"Caminos del Aconcagua <{self._remitente_avisos()}>",
                     "body_html": html,
                     "model": self._name,
                     "res_id": self.id,
@@ -320,13 +347,80 @@ class CdaClaim(models.Model):
         except Exception:  # noqa: BLE001 - si falla, el sitio manda el suyo
             _logger.exception("No se pudo enviar el aviso del reclamo %s", numero)
             return False
-        # mail.send() no levanta excepción: deja el correo en estado 'exception'.
         if correo.state == "exception":
             _logger.warning(
                 "El servidor de correo rechazó el aviso del reclamo %s", numero
             )
             return False
         return True
+
+    def action_resend_claimant_email(self):
+        """Botón de Seguimiento: reenvía el aviso al vecino."""
+        self.ensure_one()
+        if not self.email:
+            raise UserError(
+                "El reclamo no tiene email cargado. Agregalo antes de reenviar."
+            )
+        if not self._mail_servidor_listo():
+            raise UserError(
+                "No hay ningún servidor de correo saliente configurado en Odoo."
+            )
+        enviado = self._send_claimant_email(force=True)
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "type": "success" if enviado else "warning",
+                "title": "Aviso reenviado" if enviado else "No se pudo enviar",
+                "message": (
+                    f"Se reenvió el aviso a {self.email}."
+                    if enviado
+                    else "El servidor de correo rechazó el envío. Revisá la "
+                    "configuración en Ajustes → Servidores de correo saliente."
+                ),
+                "sticky": False,
+            },
+        }
+
+    def _queue_number_changed_email(self, anterior, nuevo):
+        """Avisa al vecino que el número de su reclamo cambió.
+
+        Se deja en la cola de correo (sin enviar en el momento) para no bloquear
+        el guardado si el servidor SMTP está lento: lo manda el cron de la cola.
+        """
+        self.ensure_one()
+        if not self.email or not self._mail_servidor_listo():
+            return
+        html = (
+            '<div style="font-family:Arial,Helvetica,sans-serif;color:#273F4F;max-width:560px">'
+            f'<p style="font-size:15px;margin:0 0 14px">{escape(self._saludo_denunciante())}</p>'
+            '<p style="font-size:15px;line-height:1.6;margin:0 0 14px">'
+            "El número de tu reclamo cambió."
+            "</p>"
+            '<p style="font-size:15px;line-height:1.6;margin:0 0 14px">'
+            f'Antes: <strong>{escape(anterior or "-")}</strong><br>'
+            'Ahora: <strong style="font-size:17px;letter-spacing:.03em">'
+            f"{escape(nuevo)}</strong>"
+            "</p>"
+            '<p style="font-size:13px;color:#537188;line-height:1.6;margin:0">'
+            "Guardá el número nuevo: es el que vas a necesitar para cualquier consulta."
+            "</p>"
+            "</div>"
+        )
+        self.env["mail.mail"].sudo().create(
+            {
+                "subject": f"Tu reclamo cambió de número: {nuevo}",
+                "email_to": self.email,
+                "email_from": f"Caminos del Aconcagua <{self._remitente_avisos()}>",
+                "body_html": html,
+                "model": self._name,
+                "res_id": self.id,
+                "auto_delete": True,
+            }
+        )
+        self.message_post(
+            body=f"Se avisó al vecino el cambio de número: {anterior or '-'} → {nuevo}"
+        )
 
     @api.depends()
     def _compute_web_form_url(self):
@@ -446,9 +540,12 @@ class CdaClaim(models.Model):
                     claim._reset_extras()
         if {"entry_code_id", "claim_type_id", "subtype_id"} & set(vals):
             for claim in self:
+                anterior = claim.number
                 numero = claim._build_number()
-                if numero and numero != claim.number:
+                if numero and numero != anterior:
                     claim.number = numero
+                    # El número figura en la constancia del vecino: se le avisa.
+                    claim._queue_number_changed_email(anterior, numero)
         return res
 
     def action_claim_start(self):

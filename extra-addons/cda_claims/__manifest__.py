@@ -1,6 +1,6 @@
 {
     "name": "CDA Reclamos",
-    "version": "19.0.1.12.0",
+    "version": "19.0.1.13.0",
     "summary": "Reclamos de Caminos del Aconcagua",
     "description": """
 GestiÃ³n de reclamos de Caminos del Aconcagua.
